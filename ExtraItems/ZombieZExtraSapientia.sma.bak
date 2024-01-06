@@ -1,0 +1,478 @@
+#include <amxmodx>
+#include <fakemeta>
+#include <engine>
+#include <cstrike>
+#include <csm>
+#include <zombiemodlimited>
+#include <fakemeta_util>
+#include <hamsandwich>
+
+new const szAnacondaModels[][] = { "models/p_sapientia.mdl", "models/v_sapientia.mdl", "models/x/w_secgroup1.mdl" }
+
+new const CAN_DAMAGE_ENTITY[][]={ "info_target" , "func_breakable" , "func_pushable" , "hostage_entity" }
+new const TRACER_ENTITY[][]={ "info_target", "func_breakable", "func_pushable", "func_wall", "func_wall_toggle", "func_door", "func_door_rotating",
+		"func_button", "func_conveyor", "hostage_entity", "func_tank", "func_tankmortar", "func_tanklaser", "func_tankrocket", "button_target" }		
+#define Get_BitVar(%1,%2) (%1 & (1 << (%2 & 31)))
+#define Set_BitVar(%1,%2) %1 |= (1 << (%2 & 31))
+#define UnSet_BitVar(%1,%2) %1 &= ~(1 << (%2 & 31))
+new g_HadWpn, g_Attack, g_Event
+
+new const WeaponSounds[] = "weapons/dprdb-1.wav"
+
+public plugin_precache()
+{
+	for(new i=0;i<3;i++)
+	{
+		engfunc(EngFunc_PrecacheModel, szAnacondaModels[i])
+	}
+	
+	engfunc(EngFunc_PrecacheModel, "sprites/holybomb_burn.spr")
+	engfunc(EngFunc_PrecacheModel, "sprites/holybomb_exp.spr")
+	
+	register_forward(FM_PrecacheEvent, "fw_PrecacheEvent_Post", 1)
+	precache_sound(WeaponSounds)
+}
+public plugin_init()
+{
+	register_forward(FM_SetModel, "fw_SetModel")
+	register_forward(FM_UpdateClientData,"fw_UpdateClientData_Post", 1)	
+	register_forward(FM_PlaybackEvent, "fw_PlaybackEvent")
+	
+	RegisterHam(Ham_Think, "info_target", "BurnThink")
+	RegisterHam(Ham_TraceAttack, "player", "HamF_TakeDamage")
+	for(new i=0; i<sizeof(CAN_DAMAGE_ENTITY); i++)
+		RegisterHam(Ham_TraceAttack, CAN_DAMAGE_ENTITY[i], "HamF_TakeDamage")
+	RegisterHam(Ham_TraceAttack, "worldspawn", "fw_TraceAttack")
+	for(new i=0; i<sizeof(TRACER_ENTITY); i++)
+		RegisterHam(Ham_TraceAttack, TRACER_ENTITY[i], "fw_TraceAttack")
+	
+	RegisterHam(Ham_Weapon_PrimaryAttack, "weapon_deagle", "fw_PrimaryAttack");
+	RegisterHam(Ham_Weapon_PrimaryAttack, "weapon_deagle", "fw_PrimaryAttack_Post", 1);
+	RegisterHam(Ham_Item_Deploy, "weapon_deagle", "fw_Item_Deploy_Post", 1);
+	RegisterHam(Ham_Item_AddToPlayer, "weapon_deagle", "fw_Item_AddToPlayer_Post", 1);
+	RegisterHam(Ham_Item_PostFrame, "weapon_deagle", "fw_Item_PostFrame");	
+	RegisterHam(Ham_Weapon_Reload, "weapon_deagle", "fw_Weapon_Reload");
+	RegisterHam(Ham_Weapon_Reload, "weapon_deagle", "fw_Weapon_Reload_Post", 1);	
+	
+	register_message(get_user_msgid("DeathMsg"), "message_DeathMsg")
+	
+	cs_register_custom_item("Sapientia", 850, 1, "GiveAnaconda", "sapientia")
+}
+
+public fw_PrecacheEvent_Post(type, const name[])
+	if(equal("events/deagle.sc", name)) g_Event = get_orig_retval()
+	
+public GiveAnaconda(id)
+{
+	if(!is_user_alive(id)) return;
+	
+	drop_weapons(id, 2)
+	
+	Set_BitVar(g_HadWpn,id)
+	UnSet_BitVar(g_Attack,id)
+	fm_give_item(id, "weapon_deagle")
+	static Ent; Ent = fm_get_user_weapon_entity(id, CSW_DEAGLE)
+	if(pev_valid(Ent)) cs_set_weapon_ammo(Ent, 6)
+}
+
+public fw_Remove_Item(id, itemid, slot)
+{
+	if(slot == 1)
+	{
+		UnSet_BitVar(g_HadWpn,id)
+	}
+}
+public message_DeathMsg()
+{
+	// get value data
+	static killer, weapon[32]
+	killer = get_msg_arg_int(1)
+	get_msg_arg_string(4, weapon, charsmax(weapon))
+	
+	if(equal(weapon, "deagle") && Get_BitVar(g_HadWpn, killer)) set_msg_arg_string(4, "anaconda")
+		
+	return PLUGIN_CONTINUE
+}
+public fw_CSPlayer_Kill(victim, attacker)
+{
+	if(Get_BitVar(g_HadWpn, victim))
+	{
+		set_task(0.1, "fw_Remove_Weapon", victim + 2025)
+	}
+}
+public fw_Remove_Weapon(id)
+{
+	id -= 2025
+	UnSet_BitVar(g_HadWpn, id)
+}
+public HamF_TakeDamage(iVictim, iAttacker, Float:Damage, Float:Direction[3], Ptr, DamageBits)
+{	
+	if(!is_user_connected(iAttacker) || get_user_weapon(iAttacker) != CSW_DEAGLE) 
+		return HAM_IGNORED;
+	
+	if(Get_BitVar(g_Attack, iAttacker) && Get_BitVar(g_HadWpn, iAttacker))
+	{
+		SetHamParamFloat(3, 42.5)
+		if(is_user_alive(iVictim) && !cs_zb_is_zombie(iAttacker) && cs_zb_is_zombie(iVictim))
+		{
+			new Float:vOrigin[3]; get_tr2(Ptr, TR_vecEndPos, vOrigin)
+			message_begin(MSG_BROADCAST, SVC_TEMPENTITY)
+			write_byte(TE_SPRITE)
+			engfunc(EngFunc_WriteCoord, vOrigin[0])
+			engfunc(EngFunc_WriteCoord, vOrigin[1])
+			engfunc(EngFunc_WriteCoord, vOrigin[2])
+			write_short(engfunc(EngFunc_ModelIndex, "sprites/holybomb_exp.spr"))
+			write_byte(1)
+			write_byte(255)
+			message_end()
+			
+			MakeBurn(iAttacker, iVictim)
+		}
+		return HAM_HANDLED
+	}
+	return HAM_IGNORED;
+}
+
+public fw_TraceAttack(Victim, Attacker, Float:Damage, Float:Direction[3], Ptr, DamageBits)
+{
+	if(!is_user_connected(Attacker))
+		return HAM_IGNORED	
+	if(get_user_weapon(Attacker) != CSW_DEAGLE || !Get_BitVar(g_HadWpn, Attacker))
+		return HAM_IGNORED
+		
+	static Float:flEnd[3], Float:vecPlane[3], pHit
+		
+	get_tr2(Ptr, TR_vecEndPos, flEnd)
+	get_tr2(Ptr, TR_vecPlaneNormal, vecPlane)
+	get_tr2(Ptr, TR_pHit, pHit)
+			
+	Make_BulletHole(flEnd, pHit)
+	
+	return HAM_IGNORED
+}
+public fw_SetModel(entity, model[])
+{
+	if(!pev_valid(entity))
+		return FMRES_IGNORED
+	
+	static Classname[32]
+	pev(entity, pev_classname, Classname, sizeof(Classname))
+	
+	if(!equal(Classname, "weaponbox"))
+		return FMRES_IGNORED
+	
+	static iOwner
+	iOwner = pev(entity, pev_owner)
+	
+	if(equal(model, "models/w_deagle.mdl"))
+	{
+		static weapon; weapon = find_ent_by_owner(-1, "weapon_deagle", entity)
+		if(pev_valid(weapon))
+		{
+			if(Get_BitVar(g_HadWpn, iOwner))
+			{
+				set_pev(weapon, pev_impulse, 2162) 
+				engfunc(EngFunc_SetModel, entity, szAnacondaModels[2])
+				set_pev(entity, pev_body, 0)
+			}
+			else return FMRES_IGNORED
+			UnSet_BitVar(g_HadWpn,iOwner)
+			UnSet_BitVar(g_Attack,iOwner)
+			
+			return FMRES_SUPERCEDE
+		}
+	}
+
+	return FMRES_IGNORED;
+}
+
+public fw_PrimaryAttack(Ent)
+{
+	if(pev_valid(Ent) != 2)
+		return
+	static Id; Id = get_pdata_cbase(Ent, 41, 4)
+	if(get_pdata_cbase(Id, 373) != Ent)
+		return
+	if(!Get_BitVar(g_HadWpn, Id))
+		return
+		
+	Set_BitVar(g_Attack,Id)
+}
+
+public fw_Item_AddToPlayer_Post(Ent, id)
+{
+	if(!pev_valid(Ent))
+		return HAM_IGNORED
+		
+	if(pev(Ent, pev_impulse) == 2162)
+	{
+		Set_BitVar(g_HadWpn, id)
+		Set_BitVar(g_Attack,id)
+		set_pev(Ent, pev_impulse, 0)	
+	}
+	return HAM_HANDLED
+}
+
+public fw_Item_PostFrame(ent)
+{
+	static id; id = pev(ent, pev_owner)
+	if(!is_user_alive(id))
+		return HAM_IGNORED
+	if(!Get_BitVar(g_HadWpn, id))
+		return HAM_IGNORED
+	
+	static Float:flNextAttack; flNextAttack = get_pdata_float(id, 83, 5)
+	static bpammo; bpammo = cs_get_user_bpammo(id, CSW_DEAGLE)
+	
+	static iMaxClip; 
+	iMaxClip = 6
+	static iClip; iClip = get_pdata_int(ent, 51, 4)
+	static fInReload; fInReload = get_pdata_int(ent, 54, 4)
+	
+	if(fInReload && flNextAttack <= 0.0)
+	{
+		static temp1
+		temp1 = min(iMaxClip - iClip, bpammo)
+			
+		set_pdata_int(ent, 51, iClip + temp1, 4)
+		cs_set_user_bpammo(id, CSW_DEAGLE, bpammo - temp1)		
+		
+		set_pdata_int(ent, 54, 0, 4)
+		
+		fInReload = 0
+	}		
+	
+	return HAM_IGNORED
+}
+
+public fw_Weapon_Reload(ent)
+{
+	static id; id = pev(ent, pev_owner)
+	if(!is_user_alive(id))
+		return HAM_IGNORED
+	
+	if(!Get_BitVar(g_HadWpn, id))
+		return HAM_IGNORED
+		
+	static BPAmmo; BPAmmo = cs_get_user_bpammo(id, CSW_DEAGLE)
+	static iClip; iClip = get_pdata_int(ent, 51, 4)
+	static iMaxClip; 
+	
+	iMaxClip = 6
+	
+	set_pev(ent, pev_iuser1, -1)
+	if(BPAmmo <= 0)
+		return HAM_SUPERCEDE
+	if(iClip >= iMaxClip)
+		return HAM_SUPERCEDE			
+	
+	set_pev(ent, pev_iuser1, iClip)
+	
+	return HAM_HANDLED
+}
+
+public fw_Weapon_Reload_Post(ent)
+{
+	static id; id = pev(ent, pev_owner)
+	if(!is_user_alive(id))
+		return HAM_IGNORED
+	if(!Get_BitVar(g_HadWpn, id))
+		return HAM_IGNORED
+		
+	if((get_pdata_int(ent, 54, 4) == 1))
+	{ // Reload
+		if(pev(ent, pev_iuser1) == -1)
+			return HAM_IGNORED;
+			
+		new Float:flTime = 1.2;
+		
+		set_pdata_float(id, 83, flTime, 5)
+		set_pdata_float(ent, 46, flTime+1.0, 4)
+		set_pdata_float(ent, 47, flTime+1.0, 4)
+		set_pdata_float(ent, 48, flTime+1.9, 4)
+		
+		Set_WeaponAnim(id, 4)
+	}
+	
+	return HAM_HANDLED
+}
+public fw_PrimaryAttack_Post(Ent)
+{
+	if(pev_valid(Ent) != 2)
+		return
+	static Id; Id = get_pdata_cbase(Ent, 41, 4)
+	if(get_pdata_cbase(Id, 373) != Ent)
+		return
+	if(!Get_BitVar(g_HadWpn, Id))
+		return 
+	
+	UnSet_BitVar(g_Attack,Id)
+}
+public fw_Item_Deploy_Post(Ent)
+{
+	if(pev_valid(Ent) != 2)
+		return
+	static Id; Id = get_pdata_cbase(Ent, 41, 4)
+	if(get_pdata_cbase(Id, 373) != Ent)
+		return
+		
+	set_pev(Ent, pev_iuser1, 0)
+	
+	if(Get_BitVar(g_HadWpn, Id))
+	{
+		set_pev(Id, pev_viewmodel2, szAnacondaModels[1])
+		set_pev(Id, pev_weaponmodel2, szAnacondaModels[0])
+	}
+}
+public MakeBurn(pevAttacker, pevVictim)
+{
+	static Float:vOrigin[3], pEnt;
+	pev(pevVictim, pev_origin, vOrigin);
+	
+	pEnt = engfunc(EngFunc_CreateNamedEntity, engfunc(EngFunc_AllocString, "info_target"))
+	set_pev(pEnt, pev_origin, vOrigin);
+	set_pev(pEnt, pev_owner, pevAttacker);
+	set_pev(pEnt, pev_aiment, pevVictim);
+	set_pev(pEnt, pev_enemy, pevVictim);
+	set_pev(pEnt, pev_movetype, MOVETYPE_FOLLOW)
+	engfunc(EngFunc_SetModel, pEnt, "sprites/holybomb_burn.spr")
+	set_pev(pEnt, pev_renderamt, 255.0);
+	set_pev(pEnt, pev_rendermode, kRenderTransAdd);
+	set_pev(pEnt, pev_scale, 1.0);
+	set_pev(pEnt, pev_frame, 0.0);
+	set_pev(pEnt, pev_classname, "holyburn_sapientia")
+	
+	set_pev(pEnt, pev_nextthink, get_gametime())
+	set_pev(pEnt, pev_dmgtime, get_gametime() + 3.0);
+}
+public BurnThink(Ent)
+{
+	if(!isBurn(Ent))
+		return;
+		
+	new pevOwner = pev(Ent, pev_owner)
+	new pevVictim = pev(Ent, pev_enemy)
+	
+	if(cs_zb_is_zombie(pevOwner) || !is_user_alive(pevOwner) || !is_user_connected(pevOwner) ||
+		!is_user_alive(pevVictim) || !cs_zb_is_zombie(pevVictim))
+	{
+		engfunc(EngFunc_RemoveEntity, Ent)
+		return;
+	}
+	
+	new Float:flDmgTime, Float:flFrame; pev(Ent, pev_frame, flFrame)
+	if(flFrame >= engfunc(EngFunc_ModelFrames, "sprites/holybomb_burn.spr")) flFrame = 0.0
+	set_pev(Ent, pev_frame, flFrame + 0.5)
+	
+	pev(Ent, pev_fuser1, flDmgTime)
+	if(get_gametime() >= flDmgTime)
+	{
+		ExecuteHamB(Ham_TakeDamage, pevVictim, Ent, pevOwner, 10.0, DMG_BURN);
+		set_pev(Ent, pev_fuser1, get_gametime() + 1.0)
+	}
+	pev(Ent, pev_dmgtime, flDmgTime)
+	if(get_gametime() >= flDmgTime)
+	{
+		engfunc(EngFunc_RemoveEntity, Ent)
+		return;
+	}
+	set_pev(Ent, pev_nextthink, get_gametime())
+}
+public fw_UpdateClientData_Post(id, sendweapons, cd_handle)
+{
+	if(!is_user_alive(id))
+		return FMRES_IGNORED	
+	if(get_user_weapon(id) == CSW_DEAGLE && Get_BitVar(g_HadWpn, id))
+		set_cd(cd_handle, CD_flNextAttack, get_gametime() + 0.001) 
+	
+	return FMRES_HANDLED
+}
+
+public fw_PlaybackEvent(flags, invoker, eventid, Float:delay, Float:origin[3], Float:angles[3], Float:fparam1, Float:fparam2, iParam1, iParam2, bParam1, bParam2)
+{
+	if (!is_user_connected(invoker))
+		return FMRES_IGNORED	
+	if(get_user_weapon(invoker) != CSW_DEAGLE || !Get_BitVar(g_HadWpn, invoker))
+		return FMRES_IGNORED
+	if(eventid != g_Event)
+		return FMRES_IGNORED
+	
+	engfunc(EngFunc_PlaybackEvent, flags | FEV_HOSTONLY, invoker, eventid, delay, origin, angles, fparam1, fparam2, iParam1, iParam2, bParam1, bParam2)
+	
+	new Float:origin[3]; pev(invoker, pev_origin, origin)
+	Set_WeaponAnim(invoker, random_num(1,2))
+	emit_sound(invoker, CHAN_WEAPON, WeaponSounds, 1.0, 0.6, 0, PITCH_NORM)
+
+	return FMRES_SUPERCEDE
+}
+
+stock Make_BulletHole(Float:vecOrigin[3], iEnt)
+{
+	static szName[16]
+	format(szName, 15, "{shot%i", random_num(1,5));
+	message_begin(MSG_BROADCAST, SVC_TEMPENTITY)
+	write_byte(104)
+	engfunc(EngFunc_WriteCoord, vecOrigin[0])
+	engfunc(EngFunc_WriteCoord, vecOrigin[1])
+	engfunc(EngFunc_WriteCoord, vecOrigin[2])
+	write_byte(get_decal_index(szName))
+	write_short(iEnt)
+	message_end()
+				
+	message_begin(MSG_BROADCAST, SVC_TEMPENTITY)
+	write_byte(109)
+	engfunc(EngFunc_WriteCoord, vecOrigin[0])
+	engfunc(EngFunc_WriteCoord, vecOrigin[1])
+	engfunc(EngFunc_WriteCoord, vecOrigin[2])
+	write_short(iEnt)
+	write_byte(get_decal_index(szName))
+	message_end()
+}
+stock isBurn(Ent)
+{
+	if(!pev_valid(Ent)) return 0;
+	
+	static szClassName[32]; pev(Ent, pev_classname,szClassName, 31);
+	return (equal(szClassName, "holyburn_sapientia"))
+}
+stock drop_weapons(id, dropwhat)
+{
+	// Get user weapons
+	static weapons[32], num, i, weaponid
+	num = 0 // reset passed weapons count (bugfix)
+	get_user_weapons(id, weapons, num)
+	
+	const PRIMARY_WEAPONS_BIT_SUM = (1<<CSW_SCOUT)|(1<<CSW_XM1014)|(1<<CSW_MAC10)|(1<<CSW_AUG)|(1<<CSW_UMP45)|(1<<CSW_SG550)|(1<<CSW_GALIL)|(1<<CSW_FAMAS)|(1<<CSW_AWP)|(1<<CSW_MP5NAVY)|(1<<CSW_M249)|(1<<CSW_M3)|(1<<CSW_M4A1)|(1<<CSW_TMP)|(1<<CSW_G3SG1)|(1<<CSW_SG552)|(1<<CSW_AK47)|(1<<CSW_P90)
+	const SECONDARY_WEAPONS_BIT_SUM = (1<<CSW_P228)|(1<<CSW_ELITE)|(1<<CSW_FIVESEVEN)|(1<<CSW_USP)|(1<<CSW_GLOCK18)|(1<<CSW_DEAGLE)
+
+	// Loop through them and drop primaries or secondaries
+	for (i = 0; i < num; i++)
+	{
+		// Prevent re-indexing the array
+		weaponid = weapons[i]
+		
+		if ((dropwhat == 1 && ((1<<weaponid) & PRIMARY_WEAPONS_BIT_SUM)) || (dropwhat == 2 && ((1<<weaponid) & SECONDARY_WEAPONS_BIT_SUM)))
+		{
+			// Get weapon entity
+			static wname[32]; get_weaponname(weaponid, wname, charsmax(wname))
+			engclient_cmd(id, "drop", wname)
+		}
+	}
+}
+stock Set_WeaponAnim(id, anim)
+{
+	set_pev(id, pev_weaponanim, anim)
+	
+	message_begin(MSG_ONE_UNRELIABLE, SVC_WEAPONANIM, {0, 0, 0}, id)
+	write_byte(anim)
+	write_byte(0)
+	message_end()
+}
+
+stock PlaySound(id, const sound[])
+{
+	if (equal(sound[strlen(sound)-4], ".mp3"))
+		client_cmd(id, "mp3 play ^"sound/%s^"", sound)
+	else
+		client_cmd(id, "spk ^"%s^"", sound)
+}

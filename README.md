@@ -1,2 +1,8 @@
 # CS1.6-Zombie-Z-AMXX-Re-Api
 CSO implemented Limited Amx Mod X Zombie Z for CS1.6 Re-Api version 
+
+Requires
+- Re-Api-5.22.0.254
+- ReGamedll-5.22.0.593
+- Amx Mod x 1.10
+- Metamod-R

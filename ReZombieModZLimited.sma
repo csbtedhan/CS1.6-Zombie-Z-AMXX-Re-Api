@@ -9,6 +9,7 @@
 #include <fakemeta_util>
 #include <reapi>
 
+#define MOD_VERSION	"2.0.2R"
 #define MAX_CSDM_SPAWNS 128
 
 #define SPAWN_DATA_ORIGIN_X 0
@@ -364,7 +365,7 @@ public plugin_precache()
 
 public plugin_init() 
 {
-	register_plugin("Re-Api Zombie Z (Non Metadrawer)(Limited)", "2.3", "csbtedhan")
+	register_plugin("Re-Api Zombie Z (Non Metadrawer)(Limited)", MOD_VERSION, "csbtedhan")
 	
 	register_event("HLTV", "event_round_freeze", "a", "1=0", "2=0")
 	register_logevent("event_newRound", 2, "1=Round_Start")
@@ -1978,7 +1979,7 @@ public task_welcome(id)
 	id-=TASK_WELCOME
 	if(!is_user_connected(id)) return;
 	
-	colored_print(id, "!d[!gSawaHijau!d] Zombie Z and Zombie Escape Z 2.0R by !tcsbtedhan")
+	colored_print(id, "!d[!gSawaHijau!d] Zombie Z and Zombie Escape Z %s by !tcsbtedhan", MOD_VERSION)
 	colored_print(id, "!d[!gZombie Z!d] Press !t(,) Buy Ammo !dto Open Mod Menu")
 }
 public task_random_weapon(id)

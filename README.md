@@ -11,4 +11,11 @@ Requires
 - Re-HLDS 3.13.0.788 (Optional For Servers but not supported with latest anniversary updates) 
 
 Bots
-- SyPB 1.49 (Good for Zombie Mods) 
+- SyPB 1.49 (Good for Zombie Mods)
+
+credits
+- asdiandx (Mostly Weapon Plugins)
+- csbtedhan (Mod)
+- nexon (original mod & resources)
+- bte ina team (support and tester) 
+- sawahijau team (support and server provider) 

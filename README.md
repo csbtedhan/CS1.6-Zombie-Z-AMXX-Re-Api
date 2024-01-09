@@ -19,3 +19,5 @@ credits
 - nexon (original mod & resources)
 - bte ina team (support and tester) 
 - sawahijau team (support and server provider) 
+
+Amateur Modder so tell me if there something problem...

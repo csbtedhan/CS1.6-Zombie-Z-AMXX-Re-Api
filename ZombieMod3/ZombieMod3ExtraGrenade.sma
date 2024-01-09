@@ -9,7 +9,7 @@ new g_Frozen[33], Float:g_flFrozenTime[33], Float:g_flDamageAreaTime[2][8192], F
 
 public plugin_precache()
 {
-	engfunc(EngFunc_PrecacheModel, "models/frozen.mdl");
+	engfunc(EngFunc_PrecacheModel, "models/zbz/frozen.mdl");
 	engfunc(EngFunc_PrecacheModel, "sprites/frostexp_1.spr");
 	engfunc(EngFunc_PrecacheModel, "sprites/frostexp_2.spr");
 
@@ -340,7 +340,7 @@ stock MakeFrozenIce(id)
 	pev(id, pev_origin, vOrigin);
 	vOrigin[2] -= 36.0
 	set_pev(pEnt, pev_origin, vOrigin);
-	engfunc(EngFunc_SetModel, pEnt, "models/frozen.mdl");
+	engfunc(EngFunc_SetModel, pEnt, "models/zbz/frozen.mdl");
 	set_pev(pEnt, pev_classname, "zombifrozen");
 	set_pev(pEnt, pev_body, 1);
 	set_pev(pEnt, pev_owner, id);

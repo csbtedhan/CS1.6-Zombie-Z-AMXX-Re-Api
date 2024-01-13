@@ -68,119 +68,117 @@ enum
 
 new const szMutationName[][] = 
 {
-	"Rapid Money",
-	"Double Jump",
-	"Kangaroo",
-	"Icarus",
-	"Hero Appearance",
-	"Cheetah",
-	"Recovery",
-	"Enthusiast",
-	"Sixth Sense",
-	"Critical Strike",
-	"Bombardierment",
-	"Cluster Nade",
-	"Explosive Bullets",
-	"Incendiary Bullet",
-	"Fireball",
-	"Penetrate",
-	"Invisible Reload",
-	"Rapid Reload",
-	"Long Jump",
-	"HP Boost",
-	"Money Power",
-	"Boxer",
-	"Booster",
-	"Vaccine Grenade",
-	"Nitrogen Grenade",
-	"Forced Fall",
-	"Specialist",
-	"Flippers",
-	"Revenge",
-	"Poisoned Skin",
-	"Mamooth",
-	"Steel Head",
-	"Enhanced Claw",
-	"Steel Skin",
-	"Ressurection",
-	"Steel Armor",
-	"Bio Bomb",
-	"Adaptation",
-	"Bomb Hardening",
-	"Reinforced Genes",
-	"Intelectual",
-	"Smart Grenade",
-	"Bomber Pack",
-	"HP Rob",
-	"Elitist",
-	"Immortality",
-	"Lucky",
-	"Demolition",
-	"Infection Bomb",
-	"Liquid Bombing",
-	"Crimson",
-	"Discount",
-	"Early Access"
+	"MUT_RAPIDMONEY",	// 0
+	"MUT_DOUBLEJUMP",
+	"MUT_KANGAROO",
+	"MUT_ICARUS",
+	"MUT_HERO",
+	"MUT_CHEETAH",	//5
+	"MUT_REGENUP",
+	"MUT_COOPERATIVES",
+	"MUT_SIXSENSE",
+	"MUT_CRITICALSTRIKE",
+	"MUT_BOMBER",	//10
+	"MUT_RAPIDNADE",	
+	"MUT_EXPLOSIVEROUND",	
+	"MUT_INCBULLET",
+	"MUT_FIREBALL",
+	"MUT_PENETRATE",	//15
+	"MUT_INVISIBLERELOAD",	
+	"MUT_RAPIDRELOAD",	
+	"MUT_LONGJUMP",
+	"MUT_HPUP",		
+	"MUT_MONEYPOWER",	//20
+	"MUT_BOXER",	
+	"MUT_BOOSTER",
+	"MUT_VACCINE",
+	"MUT_FROST",	
+	"MUT_DROPFALL",	//25
+	"MUT_SPECIALIST",
+	"MUT_DASHCROUCH",	
+	"MUT_REVENGE",
+	"MUT_CONTACT",
+	"MUT_MAMOOTH",	//30
+	"MUT_STEELHEAD",	
+	"MUT_ENHANCLAW",	
+	"MUT_STEELSKIN",
+	"MUT_RESSURECT",
+	"MUT_STEELARMOR",	//35
+	"MUT_REGENBOMB",
+	"MUT_ADAPTATION",
+	"MUT_BOMBHARDENING",
+	"MUT_REINFORCE",
+	"MUT_INTELECTUAL",	//40
+	"MUT_HOMINGNADE",
+	"MUT_GRENADEPACK",
+	"MUT_HEALPARTY",
+	"MUT_ELITIST",
+	"MUT_IMMORTALITY",	//45
+	"MUT_LUCKY",
+	"MUT_DEMOLITION",
+	"MUT_INFECTIONBOMB",
+	"MUT_POISON",
+	"MUT_CRIMSON",	//50
+	"MUT_DISCOUNT",
+	"MUT_EARLYACCESS"
 }
 
 new iMutTeams[] = { 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 0 , 2 , 2 , 2 , 2 , 2 , 2 , 2 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 2 , 1 , 2 , 0 , 0 , 2 , 1, 1, 2, 0, 0}
 new const szMutationInfo[][] = 
 {
-	"Earn extra dollars on New Round and during Combat^nCondition: Attack Zombies(\yHuman\w), Recieve Damage(\rZombie\w), New Round(Both)",
-	"Can Jump Twice on Air^nCondition: Able to jump once after first jumping(Both)",
-	"Increase Jump Power^nCondition: Extra velocity for jumping(Both)",
-	"Glide on air on few moment^nCondition: Hold [\yJump\w] for perfom gliding(Both)",
-	"Can be hero^nCondition: Able to be hero at random moment without using Karma(\yHuman\w)",
-	"Increase Movement Speed^nCondition: Always active on both Zombies or Humans",
-	"Able to Regen HP^nCondition: Able to regen health when move slowly or idle(Both)",
-	"Able to Evolution for Zombie and Extra Damage for Human^nCondition: Getting attack or infecting(\rZombie\w)^nAdditional damage by getting close to other human(\yHuman\w)",
-	
-	"Able to see zombie host on Roundstart^nCondition: Only nearby host can be detected",
-	"Chance of Critical Hit^nCondition: 30% chance get critical hit when you attack the Zombies",
-	"Chance to call Air Support direct after Grenade Explosion^nCondition: 10% Chance call airstrike direct after where grenade exploded",
-	"Throw Extra 3 Grenades^nCondition: Always on after throwing a Grenades",
-	"Chance of Bullet Explosion^nCondition: Exploded every 1-3 second cooldown",
-	"Burn target for moment After Hits^nCondition: Always on while attacking zombie",
-	"Chance throw fire ball while using sniper rifle^nCondition:Throwing a fireball every 2 second cooldown ",
-	"Extra penetration and Decrease bullet spread^nCondition: Activated only while using shotgun",
-	"Set invisible when reloading^nCondition: Transparent until reload ended",
-	"Use Backpack ammo instead of Clip Ammo^nCondition: Active while attacking using primary or secondary weapons",
-	"Allow to use Longjump^nCondition: Press [\yDuck+Jump\w] while moving forward",
-	"Gain Extra health^nCondition: Active on first spawn",
-	"Damage increased based on Money^nCondition: More money you have, more damage you get",
-	"Make Punch while using melee^nCondition: Activated while attacking using Knife",
-	"Increase Speed while using SMG's^nCondition: Extra speed while using SMG's",
-	"Able to using Vaccine Gas grenade^nCondition: Give you a smoke/vaccine gas nade on roundstart",
-	"Able to using Nitrogen Frost Nade^nCondition: Give you a Frost nade on roundstart",
-	"Forced fall damaged zombie while zombie on Ladder^nCondition: Able to force fall from ladder that zombie attacked by you",
-	"Able to use human skills^nCondition: Always active and only can be use Once per round",
-	
-	"Increase Crouch speed^nCondition: Always active while ducking",
-	"Throw Bomb direct after Death^nCondition: Throw Frog bomb direct to your killer after death",
-	"Infect human just touching them^nCondition: Instant Infect (Kill for Hero) while touching them",
-	"Armor Increased while move slowly^nCondition: Moving slowly",
-	"Reduce Headshot damage^nCondition: Getting headshot",
-	"Increase range of Melee Attack^nCondition: Attacking",
-	"Chance to Godmode for moment^nCondition: 40% chance while get attacked",
-	"Able to Ressurect while virus ended^nCondition: Always ressurect after first 40 second (Except killed by headshot)",
-	"Increasing Armor^nCondition: Achieved while respawn/spawning",
-	"Chance to Receive zombie bomb when getting hit^nCondition: Gain frog bomb every 20% damage",
-	"Able to change zombie class instantly",
-	"Increase Bomb damage and Knockback",
-	"Instantly become a host zombie when infected.^nEvolution is possible even without enthusiasm",
-	"Gain extra experience when killing zombies or infecting humans.",
-	"Able to use Grenade Mode (Normal/Homing/Laser/Motion)",
-	"Automatically generate grenades at regular intervals.",
-	"You and zombie team recover Some HP While infecting human.",
-	"As the number of humans decreases, the damage and movement rate increases.",
-	"Become invicible for 2 sec once and adding 10% From max health while dying (/rZombie/w)^nInvicible for Infection for moment (/yHuman/w)",
-	"Chance to get 1x decoder for Killing or Infecting",
-	"Increase HE Grenade Damage",
-	"Make a Infection Area for 10 sec After death",
-	"Create Poisonious Liquid after Frog Bomb Explode",
-	"Decrease Damage Taking from Zombie Skills or Bomb",
-	"Get half of price while buying items (Include Decoder)",
-	"Decrease level restrictions into 4 level (Random Buy Excluded)"
+	"MUT_RAPIDMONEY_DESC",	// 0
+	"MUT_DOUBLEJUMP_DESC",
+	"MUT_KANGAROO_DESC",
+	"MUT_ICARUS_DESC",
+	"MUT_HERO_DESC",
+	"MUT_CHEETAH_DESC",	//5
+	"MUT_REGENUP_DESC",
+	"MUT_COOPERATIVES_DESC",
+	"MUT_SIXSENSE_DESC",
+	"MUT_CRITICALSTRIKE_DESC",
+	"MUT_BOMBER_DESC",	//10
+	"MUT_RAPIDNADE_DESC",	
+	"MUT_EXPLOSIVEROUND_DESC",	
+	"MUT_INCBULLET_DESC",
+	"MUT_FIREBAL_DESCL",
+	"MUT_PENETRATE_DESC",	//15
+	"MUT_INVISIBLERELOAD_DESC",	
+	"MUT_RAPIDRELOAD_DESC",	
+	"MUT_LONGJUMP_DESC",
+	"MUT_HPUP_DESC",		
+	"MUT_MONEYPOWER_DESC",	//20
+	"MUT_BOXER_DESC",	
+	"MUT_BOOSTER_DESC",
+	"MUT_VACCINE_DESC",
+	"MUT_FROST_DESC",	
+	"MUT_DROPFALL_DESC",	//25
+	"MUT_SPECIALIST_DESC",
+	"MUT_DASHCROUCH_DESC",	
+	"MUT_REVENGE_DESC",
+	"MUT_CONTACT_DESC",
+	"MUT_MAMOOTH_DESC",	//30
+	"MUT_STEELHEAD_DESC",	
+	"MUT_ENHANCLAW_DESC",	
+	"MUT_STEELSKIN_DESC",
+	"MUT_RESSURECT_DESC",
+	"MUT_STEELARMOR_DESC",	//35
+	"MUT_REGENBOMB_DESC",
+	"MUT_ADAPTATION_DESC",
+	"MUT_BOMBHARDENING_DESC",
+	"MUT_REINFORCE_DESC",
+	"MUT_INTELECTUAL_DESC",	//40
+	"MUT_HOMINGNADE_DESC",
+	"MUT_GRENADEPACK_DESC",
+	"MUT_HEALPARTY_DESC",
+	"MUT_ELITIST_DESC",
+	"MUT_IMMORTALITY_DESC",	//45
+	"MUT_LUCKY_DESC",
+	"MUT_DEMOLITION_DESC",
+	"MUT_INFECTIONBOMB_DESC",
+	"MUT_POISON_DESC",
+	"MUT_CRIMSON_DESC",	//50
+	"MUT_DISCOUNT_DESC",
+	"MUT_EARLYACCESS_DESC"
 }
 new g_iNumMutations[2][33], g_iHasMutations[33][53], g_Jump[33], g_JumpNum[33], g_iHoldingJump[33], Float:g_flJumpTime[33], Float:g_flLastLeap[3][33], g_iManual[33];
 new g_iTraceDmg[33], g_iLastHitGroup[33], g_SteelSkin[33], Float:g_flSteelSkinTime[33], Float:g_flIncBulletTime[33][33], g_IncBulletNum[33][33], g_iGrenData[33][4], g_szGrenModel[33][128];
@@ -322,7 +320,7 @@ public plugin_init()
 	register_clcmd("deadly", "clcmd_skillhumanskilldeadly")
 	register_clcmd("sprint", "clcmd_skillhumanskillsprint")
 	
-	cvar_max_reset = register_cvar("mp_zombie_mutation_resetlimit", "10")
+	cvar_max_reset = register_cvar("mp_zombie_mutation_resetlimit", "50")
 	cvar_reset_cost = register_cvar("mp_zombie_mutation_resetcost", "25000")
 	
 	for(new x = 0; x < sizeof(g_Hud); x ++)
@@ -511,7 +509,7 @@ public clcmd_showmutation(id)
 	{
 		if(!g_iHasMutations[id][x] || iMutTeams[x] != 0) continue;
 		
-		format(Txt, charsmax(Txt), "[ALL] %s", szMutationName[x]);
+		format(Txt, charsmax(Txt), "[ALL] %L", LANG_PLAYER, szMutationName[x]);
 		
 		Data[0] = x
 		menu_additem(iMenu, Txt, Data);
@@ -520,7 +518,7 @@ public clcmd_showmutation(id)
 	{
 		if(!g_iHasMutations[id][x] || iMutTeams[x] != 2) continue;
 		
-		format(Txt, charsmax(Txt), "[\yHuman\w] %s", szMutationName[x]);
+		format(Txt, charsmax(Txt), "[\yHuman\w] %L", LANG_PLAYER, szMutationName[x]);
 		
 		Data[0] = x
 		menu_additem(iMenu, Txt, Data);
@@ -529,7 +527,7 @@ public clcmd_showmutation(id)
 	{
 		if(!g_iHasMutations[id][x] || iMutTeams[x] != 1) continue;
 		
-		format(Txt, charsmax(Txt), "[\rZombie\w] %s", szMutationName[x]);
+		format(Txt, charsmax(Txt), "[\rZombie\w] %L", LANG_PLAYER, szMutationName[x]);
 		
 		Data[0] = x
 		menu_additem(iMenu, Txt, Data);
@@ -554,9 +552,9 @@ public MutationInfoDisplay(id, mutindex)
 {
 	new Txt[256], iMenu
 	
-	format(Txt, charsmax(Txt), "\w[\r%s\w]", szMutationName[mutindex]);
+	format(Txt, charsmax(Txt), "\w[\r%L\w]", LANG_PLAYER, szMutationName[mutindex]);
 	iMenu = menu_create(Txt, "MutationDisplayInfoHandler")
-	format(Txt, charsmax(Txt), "%s", szMutationInfo[mutindex]);
+	format(Txt, charsmax(Txt), "%L", LANG_PLAYER, szMutationInfo[mutindex]);
 	menu_additem(iMenu, Txt, "")
 	
 	set_pdata_int(id, 205, 0);
@@ -573,13 +571,13 @@ public clcmd_testmutation(id)
 		
 	new Txt[256], Data[2], iMenu
 	
-	format(Txt, charsmax(Txt), "\wMutation List [\y%i\w]", g_iNumMutations[1][id])
+	format(Txt, charsmax(Txt), "\w%L [\y%i\w]", LANG_PLAYER, "MUTATION_TEST", g_iNumMutations[1][id])
 	iMenu = menu_create(Txt, "TestMutationHandler")
 	for(new x = 0 ; x < sizeof(szMutationName); x ++ )
 	{
-		if(iMutTeams[x] == 1) format(Txt, charsmax(Txt), "[\rZombie\w] %s [%s]", szMutationName[x], g_iHasMutations[id][x] ? "\rActivated\w" : "\dDisabled\w");
-		else if(iMutTeams[x] == 2) format(Txt, charsmax(Txt), "[\yHuman\w] %s [%s]", szMutationName[x], g_iHasMutations[id][x] ? "\rActivated\w" : "\dDisabled\w");
-		else format(Txt, charsmax(Txt), "[ALL] %s [%s]", szMutationName[x], g_iHasMutations[id][x] ? "\rActivated\w" : "\dDisabled\w");
+		if(iMutTeams[x] == 1) format(Txt, charsmax(Txt), "[\rZombie\w] %L [%s]", LANG_PLAYER, szMutationName[x], g_iHasMutations[id][x] ? "\rActivated\w" : "\dDisabled\w");
+		else if(iMutTeams[x] == 2) format(Txt, charsmax(Txt), "[\yHuman\w] %L [%s]", LANG_PLAYER, szMutationName[x], g_iHasMutations[id][x] ? "\rActivated\w" : "\dDisabled\w");
+		else format(Txt, charsmax(Txt), "[ALL] %L [%s]", LANG_PLAYER, szMutationName[x], g_iHasMutations[id][x] ? "\rActivated\w" : "\dDisabled\w");
 		
 		Data[0] = x
 		menu_additem(iMenu, Txt, Data);
@@ -2945,7 +2943,7 @@ stock AchieveRandomMutation(id)
 			} else {
 				set_dhudmessage(0, 255, 0, -1.0, 0.74, 0, 0.0, 1.0, 0.0, 0.5)
 			}
-			show_dhudmessage(id, "%s", szMutationName[index])
+			show_dhudmessage(id, "%L", LANG_PLAYER, szMutationName[index])
 		}
 		iSigned --
 	}
@@ -3351,6 +3349,3 @@ stock IsDucking(id)
 {
 	return (pev(id, pev_flags) & (FL_DUCKING | FL_ONGROUND) == (FL_DUCKING | FL_ONGROUND))
 }
-/* AMXX-Studio Notes - DO NOT MODIFY BELOW HERE
-*{\\ rtf1\\ ansi\\ deff0{\\ fonttbl{\\ f0\\ fnil Tahoma;}}\n\\ viewkind4\\ uc1\\ pard\\ lang1033\\ f0\\ fs16 \n\\ par }
-*/

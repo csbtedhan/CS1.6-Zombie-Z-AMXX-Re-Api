@@ -1265,8 +1265,11 @@ public event_round_freeze()
 	}
 	ResetValuePlayer()
 	
+	new szText[128]
+	format(szText, charsmax(szText), "%L", LANG_PLAYER, "ROUND_PREPARE")
+	
 	play_sound(0, "misc/cs_stinger.wav")
-	send_center_text("Prepare to Fight !", 4.0, {168,204,238}, 0)
+	send_center_text(szText, 4.0, {168,204,238}, 0)
 }
 
 public event_newRound()
@@ -1289,7 +1292,10 @@ public event_newRound()
 	
 	play_sound(0, c_music_start)
 	
-	send_center_text(c_escape_mode ? "Run from those Zombies!" : "Prepare for Killing Zombies!", 4.0, {168,204,238}, 0)
+	new szText[128]
+	format(szText, charsmax(szText), "%L", LANG_PLAYER, c_escape_mode ? "ROUND_ESCAPE" : "ROUND_SURVIVAL")
+	
+	send_center_text(szText, 4.0, {168,204,238}, 0)
 }
 
 public event_current_weapon(id)
@@ -1302,7 +1308,7 @@ public event_current_weapon(id)
 }
 public event_DeathMsg()
 {
-	static id, victim, headshot, weapon[33]
+	static id, victim, headshot, weapon[33], szText[128]
 	id = read_data(1)
 	victim = read_data(2)
 	headshot = read_data(3)
@@ -1322,7 +1328,7 @@ public event_DeathMsg()
 		set_player_light(victim, string)
 		if(is_user_connected(id))
 		{
-			static name[2][32], szText[128], expreward
+			static name[2][32], expreward
 			get_user_name(id, name[0], 31)
 			get_user_name(victim, name[1], 31);
 					
@@ -1339,7 +1345,8 @@ public event_DeathMsg()
 					if(random(50) < 10)
 					{
 						g_iDecoder[id] ++
-						colored_print(id, "!d[!gZombie Z!d] Obtain !g1x Decoder !dfor Killing")
+						format(szText, charsmax(szText), "!d[!gZombie Z!d] %L", LANG_PLAYER, "LUCKY")
+						colored_print(id, "%s", szText)
 					}
 					g_flLastLucky[id] = get_gametime() + random_float(10.0, 30.0)
 				}
@@ -1353,7 +1360,7 @@ public event_DeathMsg()
 					
 					if(headshot && !c_escape_mode)
 					{
-						format(szText, 127, "A zombie %s has been killed by %s on head!", name[1], name[0]) 
+						format(szText, charsmax(szText), "%L", LANG_PLAYER, "ZOMBIE_KILL", name[1], name[0])
 						send_center_text(szText, 4.0, {168,204,238}, 0)
 					}
 					
@@ -1377,7 +1384,8 @@ public event_DeathMsg()
 						if(random(50) < 10)
 						{
 							g_iDecoder[id] ++
-							colored_print(id, "!d[!gZombie Z!d] Obtain !g1x Decoder !dfor Killing")
+							format(szText, charsmax(szText), "!d[!gZombie Z!d] %L", LANG_PLAYER, "LUCKY")
+							colored_print(id, "%s", szText)
 						}
 						g_flLastLucky[id] = get_gametime() + random_float(10.0, 30.0)
 					}
@@ -1701,11 +1709,12 @@ public HamF_BreakableTakeDamage(victim, inflictor, attacker, Float:flDamage, dmg
 	if(pev(victim, pev_spawnflags) & SF_BREAK_TRIGGER_ONLY)
 		return HAM_IGNORED;
 		
-	new Float:flHp; pev(victim, pev_health, flHp)
+	new szText[128], Float:flHp; pev(victim, pev_health, flHp)
 	if(flDamage >= flHp)
 	{
 		new name[64]; get_user_name(attacker, name, 63);
-		colored_print(0, ">x01[>x04Zombie Z>x01] >x03%s>x01 Destroy an Object", name)
+		format(szText, charsmax(szText), ">x01[>x04Zombie Z>x01] %L", LANG_PLAYER, "DESTROY_OBJ", name)
+		colored_print(0, "%s", szText)
 	}
 	return HAM_IGNORED;
 }
@@ -1715,9 +1724,10 @@ public fw_Touch(ent, id)
 	{
 		if(isGrenade(ent) && isBreakable(id) && !(pev(id, pev_spawnflags) & SF_BREAK_TRIGGER_ONLY))
 		{
-			new name[64], attacker; attacker = pev(ent, pev_owner)
+			new szText[128], name[64], attacker; attacker = pev(ent, pev_owner)
 			get_user_name(attacker, name, 63);
-			colored_print(0, ">x01[>x04Zombie Z>x01] >x03%s>x01 Destroy an Object", name)
+			format(szText, charsmax(szText), ">x01[>x04Zombie Z>x01] %L", LANG_PLAYER, "DESTROY_OBJ", name)
+			colored_print(0, "%s", szText)
 		}
 		if(isTrigger(ent) && is_user_connected(id) && g_zombie[id])
 			return HAM_SUPERCEDE;
@@ -1748,8 +1758,9 @@ public fw_UseButton(entity, id, activator, use_type)
 		return HAM_IGNORED;
 		
 	g_flButtonUse = get_gametime() + 1.0
-	new name[64]; get_user_name(id, name, 63);
-	colored_print(0, ">x01[>x04Zombie Z>x01] >x03%s>x01 Is using a button", name)
+	new szText[128], name[64]; get_user_name(id, name, 63);
+	format(szText, charsmax(szText), ">x01[>x04Zombie Z>x01] %L", LANG_PLAYER, "USE_OBJ", name)
+	colored_print(0, "%s", szText)
 	return HAM_IGNORED;
 }
 // Emit Sound Forward
@@ -1979,8 +1990,10 @@ public task_welcome(id)
 	id-=TASK_WELCOME
 	if(!is_user_connected(id)) return;
 	
+	new szText[256]
+	format(szText, charsmax(szText), "!d[!gZombie Z!d] %L", LANG_PLAYER, "INTRODUCTION")
 	colored_print(id, "!d[!gSawaHijau!d] Zombie Z and Zombie Escape Z %s by !tcsbtedhan", MOD_VERSION)
-	colored_print(id, "!d[!gZombie Z!d] Press !t(,) Buy Ammo !dto Open Mod Menu")
+	colored_print(id, "%s", szText)
 }
 public task_random_weapon(id)
 {
@@ -2043,7 +2056,7 @@ public task_round_time()
 				case 10 : play_sound(0, "vox/ghostfury/ten.wav")
 				case 20 : play_sound(0, "vox/20secremain.wav")
 			}
-			format(txt, 63, "Zombie will appear in %i second", g_Countdown)
+			format(txt, 63, "%L", LANG_PLAYER, "COUNTDOWN", g_Countdown)
 			client_print(0, print_center, "%s", txt)
 		}
 		else
@@ -2066,8 +2079,8 @@ public task_round_time()
 		g_Virus --
 		if(g_Virus <= 0 && !c_escape_mode) ShowVirusStatusMessage(1)
 		else {
-			if(!c_escape_mode) format(txt, 63, "Virus detoxified in %i second", g_Virus)
-			else format(txt, 63, "Zombie Released in %i second", g_Virus)
+			if(!c_escape_mode) format(txt, 63, "%L", LANG_PLAYER, "VIRUS_TIME", g_Virus)
+			else format(txt, 63, "%L",  LANG_PLAYER, "RELEASE_TIME", g_Virus)
 			client_print(0, print_center, "%s", txt)
 		}
 	}
@@ -2082,7 +2095,7 @@ public fw_CSHUD(id)
 {	
 	if(is_user_bot(id)) return;
 	
-	new message[3][256], fixednum[3][32], width, PowerUp[32], PowerDown[32], human_num, current_morale, damage_percent, damage_extra
+	new message[4][256], fixednum[3][32], width, PowerUp[32], PowerDown[32], human_num, current_morale, damage_percent, damage_extra
 	new ct = g_team_score[ZTEAM_CT]
 	new t = g_team_score[ZTEAM_TERRORIST]
 	
@@ -2099,8 +2112,9 @@ public fw_CSHUD(id)
 	format(message[0], 255, "%s", fixednum[1])
 	format(message[1], 255, "%s", fixednum[0])
 	
+	format(message[3], 255, "%L", LANG_PLAYER, "HUD_SCORE", message[1], message[2], message[0])
 	set_dhudmessage(255, 255, 255, -1.0, 0.02, 0, 0.0, 1.0, 0.0, 0.0);
-	show_dhudmessage(id, "[HUMAN %s] ROUND %s [%s ZOMBIE]", message[1], message[2], message[0]);
+	show_dhudmessage(id, "%s", message[3]);
 		
 	fix_number(g_level[id], 2, fixednum[0], 31)
 	fix_number(c_max_level, 2, fixednum[1], 31)
@@ -2108,8 +2122,8 @@ public fw_CSHUD(id)
 	width = (((g_iKarma[0][id] - 1 ) * 100) / MAX_KARMA)
 	width = max(0, min(100, width))
 	
-	if(!g_zombie[id]) format(message[1], 255, "HP: %i AP: %i ^nEXP: %i/%i ^nLEVEL: %s/%s^nKARMA: %i/%i%", get_user_health(id), get_user_armor(id), g_exp[id], c_exp_max, fixednum[0], fixednum[1], g_iKarma[1][id], width)
-	else format(message[1], 255, "HP: %i AP: %i ^nEXP: %i/%i ^nLEVEL: %s/%s^nEVOLUTION: %i^nKARMA: %i/%i%", get_user_health(id), get_user_armor(id), g_exp[id], c_exp_max, fixednum[0], fixednum[1], g_rage[RAGE_LEVEL][id]+1, g_iKarma[1][id], width)
+	if(!g_zombie[id]) format(message[1], 255, "%L", LANG_PLAYER, "HUD_STAT", get_user_health(id), get_user_armor(id), g_exp[id], c_exp_max, fixednum[0], fixednum[1], g_iKarma[1][id], width)
+	else format(message[1], 255, "%L", LANG_PLAYER, "HUD_STAT_ZOMBIE", get_user_health(id), get_user_armor(id), g_exp[id], c_exp_max, fixednum[0], fixednum[1], g_rage[RAGE_LEVEL][id]+1, g_iKarma[1][id], width)
 		
 	if(is_user_alive(id))
 	{
@@ -2120,7 +2134,8 @@ public fw_CSHUD(id)
 			if(isBreakable(aim) && !(pev(aim, pev_spawnflags) & SF_BREAK_TRIGGER_ONLY))
 			{
 				pev(aim, pev_health, hp)
-				client_print(id, print_center, "Wall Health: %.1f", hp)
+				format(message[2], 255, "%L", LANG_PLAYER, "WALL_HP", hp)
+				client_print(id, print_center, "%s", message[2])
 			}
 		}
 		set_hudmessage(0, 255, 0, -1.0, 0.775, 0, 0.0, 0.2, 0.0, 0.0)
@@ -2144,7 +2159,7 @@ public fw_CSHUD(id)
 				for(new i = 13; i > current_morale; i--)
 					formatex(PowerDown, sizeof(PowerDown), "%s--", PowerDown)
 				
-				format(message[0], 255, "ATTACK %i% %s ^n[%s%s]", damage_percent, human_num > 0 ? message[1] : "", PowerUp, PowerDown)
+				format(message[0], 255, "%L", LANG_PLAYER, "MORALE", damage_percent, human_num > 0 ? message[1] : "", PowerUp, PowerDown)
 				set_hudmessage(GetMoraleColor(current_morale, 0), GetMoraleColor(current_morale, 1), GetMoraleColor(current_morale, 2), -1.0, 0.9, 0, 0.0, 0.2, 0.0, 0.0)
 				ShowSyncHudMsg(id, g_hud_sync[4], "%s", message[0])
 			}
@@ -2152,7 +2167,7 @@ public fw_CSHUD(id)
 			if(g_zombieclass[id] == g_DefZombie)
 			{
 				set_hudmessage(255, 255, 255, -1.0, 0.25, 0, 0.0, 0.2, 0.0, 0.0);
-				ShowSyncHudMsg(id, g_hud_sync[2], "[G]Fastrun: %s [R]Self-Healing: %s", (g_flFastrunTime[id] <= get_gametime() && g_iFastrunStat[id]==0) ? "Ready" : "Cooldown",  (g_flHealTime[id] <= get_gametime() && g_iHealStat[id]==0) ? "Ready" : "Cooldown");
+				ShowSyncHudMsg(id, g_hud_sync[2], "%L", LANG_PLAYER, "DEFZB_HUD", (g_flFastrunTime[id] <= get_gametime() && g_iFastrunStat[id]==0) ? "Ready" : "Cooldown",  (g_flHealTime[id] <= get_gametime() && g_iHealStat[id]==0) ? "Ready" : "Cooldown");
 			}
 			
 			if(g_iHandlerData[HDATA_EVOLUTION][id] || g_iHandlerData[HDATA_REINFORCED][id])
@@ -2182,8 +2197,9 @@ public SetUserZombie(id)
 {
 	if(!get_pcvar_num(cvar_testing)) return;
 	
-	new name[64]; get_user_name(id, name, 63);
-	colored_print(0, ">x01[>x04Zombie Z>x01] >x03%s>x01 Is using Zombie test command", name)
+	new szText[256], name[64]; get_user_name(id, name, 63);
+	format(szText, charsmax(szText), ">x01[>x04Zombie Z>x01] %L", LANG_PLAYER, "TESTCMD_ZB", name);
+	colored_print(0, "%s", szText)
 	
 	ExecuteForward(g_iForward[0], fwResult, id, 0);
 	MakeZombie(id)
@@ -2195,8 +2211,9 @@ public SetUserRageLevel(id)
 	new arg[32]
 	read_argv(1, arg, 31);
 	
-	new name[64]; get_user_name(id, name, 63);
-	colored_print(0, ">x01[>x04Zombie Z>x01] >x03%s>x01 Is using Rage test command", name)
+	new szText[256], name[64]; get_user_name(id, name, 63);
+	format(szText, charsmax(szText), ">x01[>x04Zombie Z>x01] %L", LANG_PLAYER, "TESTCMD_RG", name);
+	colored_print(0, "%s", szText)
 	
 	g_rage[RAGE_LEVEL][id] = min(2, str_to_num(arg));
 }
@@ -2213,8 +2230,9 @@ public SetUserHuman(id)
 	g_zombie[id] = 0;
 	g_respawnzb[id] = 0;
 		
-	new name[64]; get_user_name(id, name, 63);
-	colored_print(0, ">x01[>x04Zombie Z>x01] >x03%s>x01 Is using human test command", name)
+	new szText[256], name[64]; get_user_name(id, name, 63);
+	format(szText, charsmax(szText), ">x01[>x04Zombie Z>x01] %L", LANG_PLAYER, "TESTCMD_HM", name);
+	colored_print(0, "%s", szText)
 	
 	cs_set_user_armor(id, c_human_armor, CS_ARMOR_VESTHELM)
 	set_pev(id, pev_health, float(c_human_health))
@@ -2227,8 +2245,9 @@ public SetMaxLevel(id)
 {
 	if(!get_pcvar_num(cvar_testing)) return;
 
-	new name[64]; get_user_name(id, name, 63);
-	colored_print(0, ">x01[>x04Zombie Z>x01] >x03%s>x01 Is using Max level test command", name)
+	new szText[256], name[64]; get_user_name(id, name, 63);
+	format(szText, charsmax(szText), ">x01[>x04Zombie Z>x01] %L", LANG_PLAYER, "TESTCMD_LVL", name);
+	colored_print(0, "%s", szText)
 	
 	while(g_level[id] < c_max_level)
 	{
@@ -2243,6 +2262,10 @@ public SetUserHero(id)
 	if(!is_user_alive(id) || g_zombie[id] || !get_pcvar_num(cvar_testing))
 		return PLUGIN_CONTINUE;
 		
+	new szText[256], name[64]; get_user_name(id, name, 63);
+	format(szText, charsmax(szText), ">x01[>x04Zombie Z>x01] %L", LANG_PLAYER, "TESTCMD_HR", name);
+	colored_print(0, "%s", szText)
+	
 	MakeHero(id, 0)
 	return PLUGIN_CONTINUE;
 }
@@ -2254,10 +2277,12 @@ public clcmd_BlockCmd(id)
 
 public ReOpenBuymenu(id)
 {
+	new szText[256]
 	if(g_RoundStatus == ROUND_RUNNING)
 	{
-		client_print(id, print_center, "Your buy session is over!")
-		colored_print(id, "!d[!gZombie Z!d] Your buy session is over!")
+		format(szText, charsmax(szText), "%L", LANG_PLAYER, "BUYOVER");
+		colored_print(0, ">x01[>x04Zombie Z>x01] %s", szText)
+		client_print(id, print_center, szText)
 		return 1;
 	}
 
@@ -2373,12 +2398,14 @@ public Player_Infected(attacker, victim)
 	
 	if(is_user_connected(attacker))
 	{
+		static name[2][32], szText[128]
 		if(g_iHandlerData[HDATA_LUCKY][attacker] && g_flLastLucky[attacker] <= get_gametime())
 		{
 			if(random(50) < 10)
 			{
 				g_iDecoder[attacker] ++
-				colored_print(attacker, "!d[!gZombie Z!d] Obtain !g1x Decoder !dfor Infecting")
+				format(szText, charsmax(szText), ">x01[>x04Zombie Z>x01] %L", LANG_PLAYER, "LUCKY_INFECT");
+				colored_print(attacker, "%s", szText)
 			}
 			g_flLastLucky[attacker] = get_gametime() + random_float(10.0, 30.0)
 		}
@@ -2386,11 +2413,10 @@ public Player_Infected(attacker, victim)
 		make_deathmsg(attacker, victim, 0, "knife")
 		set_pev(attacker, pev_frags, pev(attacker, pev_frags) + 1.0)
 		
-		static name[2][32], szText[128]
 		get_user_name(attacker, name[0], 31)
 		get_user_name(victim, name[1], 31);
 				
-		format(szText, 127, "%s has been infected by %s!", name[1], name[0]) 
+		format(szText, 127, "%L", LANG_PLAYER, "ZOMBIE_INFECT", name[1], name[0]) 
 		send_center_text(szText, 4.0, {200,110,110}, 0)
 		
 		SetExp(attacker, g_iHandlerData[HDATA_INTELECTUAL][attacker] ? 250 : 50);
@@ -2517,6 +2543,8 @@ public MakeHero(id, iSide)
 {
 	if(!is_user_connected(id) || !is_user_alive(id) || !c_enable_hero || g_iHero[id]) return	
 	
+	static szText[128]
+	
 	if(!iSide)
 	{
 		entity_set_float(id, EV_FL_health, float(c_human_health * 4))
@@ -2527,8 +2555,9 @@ public MakeHero(id, iSide)
 	
 	g_iHero[id] = iSide ? 2 : 1;
 	
+	format(szText, charsmax(szText), "%L", LANG_PLAYER, iSide? "SIDEKICK" : "HERO")
 	set_dhudmessage(200, 140, 0, -1.0, 0.2, 0, 0.0, 4.0, 0.5, 0.5);
-	show_dhudmessage(id, iSide? "You're Sidekick!" : "You're Hero!");
+	show_dhudmessage(id, "%s", szText);
 		
 	if(!is_user_bot(id))
 	{
@@ -2576,8 +2605,11 @@ public make_random_player_zombie()
 		return;
 	if(g_NewRound){
 		
+		static szText[128]
+		format(szText, charsmax(szText), "%L", LANG_PLAYER, "ZOMBIE_APPEAR")
+		
 		//Show Message
-		send_center_text("Zombies Appear!", 5.0, {255, 110, 110}, 0)
+		send_center_text(szText, 5.0, {255, 110, 110}, 0)
 		// Randomly turn iMaxZombies players into zombies
 		CheckMakeRandomZombie()
 	}
@@ -2672,7 +2704,7 @@ public SetSupplyBox()
 	if(!g_SupplySpawn || g_flSupplyTime > get_gametime() || GetSupplyCount() >= c_supply_max || c_escape_mode)
 		return;
 	
-	new spawnid, Float:vOrigin[3], TotalSpawn, iSupplyNum = random_num(1, 2)
+	new szText[128], spawnid, Float:vOrigin[3], TotalSpawn, iSupplyNum = random_num(1, 2)
 	while(TotalSpawn < iSupplyNum && GetSupplyCount() < c_supply_max)
 	{
 		if(g_SupplySpawnExist) 
@@ -2700,7 +2732,8 @@ public SetSupplyBox()
 		TotalSpawn ++
 	}
 	
-	client_print(0, print_center, "A Supply Box has arrived!")
+	format(szText, charsmax(szText), "%L", LANG_PLAYER, "SUPPLY_SPAWN")
+	client_print(0, print_center, szText)
 	play_sound(0, "zombi/supplybox_drop.wav");
 	g_flSupplyTime = get_gametime() + c_supply_time
 }
@@ -2830,7 +2863,8 @@ public zSkinMenu(id)
 	if(!is_user_connected(id) || !ArraySize(ZSkinAddons)) return PLUGIN_CONTINUE;
 	
 	new iMenu, aSkinData[SkinData], szName[64], szText[256], iData[2], ClassID;
-	iMenu = menu_create("Zombie Skin", "zSkinMenuHandler")
+	format(szText, 255, "%L", LANG_PLAYER, "MENU_ZBSKIN");
+	iMenu = menu_create(szText, "zSkinMenuHandler")
 	
 	for(new x = 0 ; x < ArraySize(ZSkinAddons); x ++ )
 	{
@@ -2889,7 +2923,8 @@ public ModMenu(id)
 	new iMenu, szText[128];iMenu = menu_create(c_escape_mode ? "\w[\yCS\w]\r Zombie Escape Z" : "\w[\yCS\w]\r Zombie Z", "ModMenuHandler");
 	if(g_RoundStatus < ROUND_RUNNING && !g_choosedzb[id]) 
 	{
-		menu_additem(iMenu, "Re-Open Buy Menu", "1");
+		format(szText, 127, "%L", LANG_PLAYER, "MENU_REBUY")
+		menu_additem(iMenu, szText, "1");
 		if(g_iKarma[1][id] != 0)
 		{
 			switch(g_iKarma[1][id])
@@ -2899,17 +2934,30 @@ public ModMenu(id)
 				case 3: szText = "Hero"
 				default: szText = "Unavailable"
 			}
-			format(szText, 127, "Use Karma: \r%s", szText)
+			format(szText, 127, "%L", LANG_PLAYER, "MENU_USEKARMA", szText)
 			menu_additem(iMenu, szText, "7")
 		}
 	}
-	menu_additem(iMenu, "Human Classes", "2");
-	menu_additem(iMenu, "Zombie Classes", "3");
-	menu_additem(iMenu, "Zombie Skin", "4")
-	menu_additem(iMenu, "Decoder", "5");
-	menu_additem(iMenu, "Mutations", "6");
-	menu_additem(iMenu, "Camera Mode", "8");
-	menu_additem(iMenu, "Mod Info", "9");
+	format(szText, 127, "%L", LANG_PLAYER, "MENU_HUMANCLASS")
+	menu_additem(iMenu, szText, "2");
+	
+	format(szText, 127, "%L", LANG_PLAYER, "MENU_ZOMBIECLASS")
+	menu_additem(iMenu, szText, "3");
+	
+	format(szText, 127, "%L", LANG_PLAYER, "MENU_ZBSKIN")
+	menu_additem(iMenu, szText, "4")
+	
+	format(szText, 127, "%L", LANG_PLAYER, "MENU_DECO")
+	menu_additem(iMenu, szText, "5");
+	
+	format(szText, 127, "%L", LANG_PLAYER, "MENU_MUTATIONS")
+	menu_additem(iMenu, szText,  "6");
+	
+	format(szText, 127, "%L", LANG_PLAYER, "MENU_CAMERA")
+	menu_additem(iMenu, szText,  "8");
+	
+	format(szText, 127, "%L", LANG_PLAYER, "MENU_MOD")
+	menu_additem(iMenu, szText,  "9");
 
 	set_pdata_int(id, 205, 0)
 	menu_display(id, iMenu, 0);
@@ -2952,11 +3000,16 @@ public MutationMenu(id)
 	if(!is_user_connected(id)) 
 		return 0;
 
-	new iMenu, szText[128]; iMenu = menu_create("\rMutation", "MutationMenuHandler");
+	new iMenu, szText[128]; format(szText, 127, "\r%L", LANG_PLAYER, "MENU_MUTATIONS")
+	iMenu = menu_create(szText, "MutationMenuHandler");
 
-	menu_additem(iMenu, cs_zb_get_auto_mutating(id) ? "Auto Mutating: \rOFF" : "Auto Mutating: \rON", "1")
-	menu_additem(iMenu, "Show Current Mutation", "2");
-	format(szText, 127, "Reset All Mutations [Cost:\r$%i\w][Use Left:\r%i\w]" , cs_zb_get_reset_mutating_cost(), 
+	format(szText, 127, "%L", LANG_PLAYER, "MENU_MUTSTATUS" , cs_zb_get_auto_mutating(id) ? "\rOFF" : "\rON")
+	menu_additem(iMenu, szText, "1")
+	
+	format(szText, 127, "%L", LANG_PLAYER, "MENU_SHOWMUTATIONS")
+	menu_additem(iMenu, szText, "2");
+	
+	format(szText, 127, "%L", LANG_PLAYER, "MENU_RESETMUTATIONS" , cs_zb_get_reset_mutating_cost(), 
 		cs_zb_get_reset_mutating_max() - cs_zb_get_reset_mutating_count(id));
 
 	menu_additem(iMenu, szText, "3");
@@ -2998,26 +3051,29 @@ public DecoderMenu(id)
 {
 	if(!is_user_connected(id)) return PLUGIN_CONTINUE;
 	
-	new iCost, iMenu, szText[256]; format(szText, charsmax(szText), "\w[\yDecoder Owned: \r%i\w]", g_iDecoder[id]);
+	new iCost, iMenu, szText[256]; format(szText, charsmax(szText), "\w[\y%L: \r%i\w]", LANG_PLAYER, "MENU_DECO", g_iDecoder[id]);
 	iMenu = menu_create(szText, "DecoderMenuHandler");
-	menu_additem(iMenu, g_iManualDecoding[id] ? "Auto Decoding: \rOFF" : "Auto Decoding: \rON", "9")
+	format(szText, charsmax(szText), "%L: \r%s", LANG_PLAYER, "MENU_AUTODECO", g_iManualDecoding[id] ? "OFF" : "ON");
+	menu_additem(iMenu, szText, "9")
 	if(g_iManualDecoding[id])
 	{
-		menu_additem(iMenu, "Open Decoder", "1");
+		format(szText, charsmax(szText), "%L", LANG_PLAYER, "MENU_OPENDECO");
+		menu_additem(iMenu, szText, "1");
 		
-		format(szText, charsmax(szText), "Open %ix Decoder", min(5, g_iDecoder[id]))
+		format(szText, charsmax(szText), "%L", LANG_PLAYER, "MENU_OPENDECOV", min(5, g_iDecoder[id]));
 		menu_additem(iMenu, szText, "2");
 	}
 	
 	iCost = c_decoder_cost
 	if(g_iHandlerData[HDATA_DISCOUNT][id]) iCost /= 2
 	if(cs_get_user_money(id) < iCost)
-		format(szText, charsmax(szText), "\dBuy x1 Decoder \wCost:\r$%i \w%s", iCost, g_iHandlerData[HDATA_DISCOUNT][id] ? "(\rDiscount\w)" : "")
-	else format(szText, charsmax(szText), "Buy 1x Decoder \wCost:\y$%i \w%s", iCost, g_iHandlerData[HDATA_DISCOUNT][id] ? "(\rDiscount\w)" : "")
+		format(szText, charsmax(szText), "\d%L", LANG_PLAYER, "MENU_BUYDECO", iCost, g_iHandlerData[HDATA_DISCOUNT][id] ? "(\rDiscount\w)" : "")
+	else format(szText, charsmax(szText), "%L", LANG_PLAYER, "MENU_BUYDECO", iCost, g_iHandlerData[HDATA_DISCOUNT][id] ? "(\rDiscount\w)" : "")
 	menu_additem(iMenu, szText, "3")
-	menu_additem(iMenu, "Guarantee Blessing", "11");
-	
-	menu_additem(iMenu, "Decoder Info", "4")
+	format(szText, charsmax(szText), "%L", LANG_PLAYER, "MENU_SPARK");
+	menu_additem(iMenu, szText, "11");
+	format(szText, charsmax(szText), "%L", LANG_PLAYER, "MENU_DECOINFO");
+	menu_additem(iMenu, szText, "4")
 	
 	set_pdata_int(id, 205, 0)
 	menu_display(id, iMenu, 0);
@@ -3114,7 +3170,7 @@ public DecoderMenuHandler(id, menu, item)
 public GuaranteMenu(id)
 {
 
-	new iMenu, szText[256]; format(szText, charsmax(szText), "\w[\yGuarantee Point: \r%i\w]", g_iSparkPoint[id]);
+	new iMenu, szText[256]; format(szText, charsmax(szText), "\w[\y%L: \r%i\w]", LANG_PLAYER, "MENU_SPARKPOINT", g_iSparkPoint[id]);
 	iMenu = menu_create(szText, "GuaranteMenuHandler");
 	new aWpnData[WpnData], sWpnName[64], data[2]
 
@@ -3220,7 +3276,7 @@ public GuaranteMenuHandler(id, menu, item)
 	replace(sWpnName, 63, "weapon_", "")
 	strtoupper(sWpnName);
 	format(sWpnName, 63, "%L", LANG_SERVER, sWpnName);
-	format(szNotice, charsmax(szNotice), ">x03%s>x01 has obtained %s item >x04%s>x01", szName, aWpnData[WpnData_Grade] == WPNGRADE_PREMIUM?"Premium" : "Unique", sWpnName);
+	format(szNotice, charsmax(szNotice), "%L", LANG_PLAYER, "ITEM_OBTAIN", szName, aWpnData[WpnData_Grade] == WPNGRADE_PREMIUM?"Premium" : "Unique", sWpnName);
 	play_sound(id, aWpnData[WpnData_Grade] == WPNGRADE_PREMIUM ? "gachapon/open_weapon_item_top_sss.wav" : "gachapon/open_weapon_item_top.wav")
 	colored_print(0, ">x01[>x04Decoder>x01] %s", szNotice);
 	g_iHasWpn[cmd[1]][id] |= (1<<cmd[0]);
@@ -3256,7 +3312,8 @@ public ClassMenu(id, fast)
 {
 	if(!is_user_connected(id) || get_user_team(id) == 0 || get_user_team(id) == 3) return PLUGIN_CONTINUE;
 	
-	new ZClassMenu = menu_create("Zombie Class", "ZombieClassMenuHandler")
+	new szText[128], ZClassMenu; format( szText, charsmax( szText), "%L", LANG_PLAYER, "MENU_ZOMBIECLASS");
+	ZClassMenu = menu_create(szText, "ZombieClassMenuHandler")
 	new iLevel, ClassName[32], Data[128], iMenuData[2]
 	for(new i = 0; i<g_class_count; i++)
 	{
@@ -3312,7 +3369,7 @@ public ZombieClassMenuHandler(id, menu, item)
 	if(g_zombie[id] && (g_iHandlerData[HDATA_CHANGECLASS][id] == 1 || cmd[1] == 1)) ChangeZombieClass(id, cmd[0])
 	else {
 		ArrayGetString(c_zombie_name, g_nextclass[id], ClassName, charsmax(ClassName))
-		format(Data, charsmax(Data), "Zombie Class next infection Name: >x03%s>x01", ClassName)
+		format(Data, charsmax(Data), "%L", LANG_PLAYER, "NEXTCLASS", ClassName)
 		colored_print(id, ">x01[>x04Zombie>x01] %s", Data)
 	}
 	return PLUGIN_CONTINUE;
@@ -3331,10 +3388,10 @@ public BuyMenu(id, fast)
 	{
 		switch(x)
 		{
-			case 1: szMenuName = "Secondary Weapon"
-			case 2: szMenuName = "Melee Weapon"
-			case 3: szMenuName = "Grenade Weapon"
-			default: szMenuName = "Primary Weapon"
+			case 1: format(szMenuName, 63, "%L", LANG_PLAYER, "MENU_SECWPN")
+			case 2: format(szMenuName, 63, "%L", LANG_PLAYER, "MENU_MELWPN")
+			case 3: format(szMenuName, 63, "%L", LANG_PLAYER, "MENU_HEWPN")
+			default: format(szMenuName, 63, "%L", LANG_PLAYER, "MENU_PRIWPN")
 		}
 	
 		if(g_rebuy[id][x] != -1)
@@ -3354,7 +3411,7 @@ public BuyMenu(id, fast)
 			if(g_iHandlerData[HDATA_DISCOUNT][id] == 1) format(sCost, 31, "\w[$\y%d\w] (\rDiscount\w)", aWpnData[WpnData_Cost]/2)
 			else format(sCost, 31, "\w[$\y%d\w]", aWpnData[WpnData_Cost])
 			format(szText, 511, "%s [%s%L\w]%s", szMenuName, (!GetWeaponStatus(id, g_rebuy[id][x], x, iGrade) ? "\d" : "\y"), LANG_PLAYER, sWpnName, aWpnData[WpnData_Cost] > 0 ?sCost : "")
-		} else format(szText, 511, "%s [\dPlease Select Weapon\w]", szMenuName)
+		} else format(szText, 511, "%s [\d%L\w]", szMenuName, LANG_PLAYER, "MENU_WPNNONE")
 		
 		iData[0] = x
 		menu_additem(iMenu, szText, iData)
@@ -3363,18 +3420,24 @@ public BuyMenu(id, fast)
 	{
 		if(g_iHandlerData[HDATA_DISCOUNT][id] == 1)
 		{
-			menu_additem(iMenu, "Buy Random Weapons ($\y1000\w) (\rDiscount\w)", "ra")
-			menu_additem(iMenu, "Buy Advanced Random Weapons ($\y3000\w) (\rDiscount\w)", "rv")
+			format(szText, 511, "%L", LANG_PLAYER, "MENU_RDWPDISC")
+			menu_additem(iMenu, szText, "ra")
+			format(szText, 511, "%L", LANG_PLAYER, "MENU_ARDWPDISC")
+			menu_additem(iMenu, szText, "rv")
 		} else {
-			menu_additem(iMenu, "Buy Random Weapons ($\y2000\w)", "ra")
-			menu_additem(iMenu, "Buy Advanced Random Weapons ($\y6000\w)", "rv")
+			format(szText, 511, "%L", LANG_PLAYER, "MENU_RDWP")
+			menu_additem(iMenu, szText, "ra")
+			format(szText, 511, "%L", LANG_PLAYER, "MENU_ARDWP")
+			menu_additem(iMenu, szText, "rv")
 		}
 	} else {
-		menu_additem(iMenu, "Random Weapons", "ra")
-		menu_additem(iMenu, "Advanced Random Weapons", "rv")
+		format(szText, 511, "%L", LANG_PLAYER, "MENU_RDWPF")
+		menu_additem(iMenu, szText, "ra")
+		format(szText, 511, "%L", LANG_PLAYER, "MENU_ARDWPF")
+		menu_additem(iMenu, szText, "rv")
 	}
 	format(sCost, 31, "\w[$\y%d\w]", GetTotalRebuyCost(id))
-	format(szText, 511, "%s %s", fast?"Receive Current Set":"Re-Buy Previous Set", (GetTotalRebuyCost(id) > 0 && !g_iHero[id]) ? sCost : "");
+	format(szText, 511, "%L %s", LANG_PLAYER, fast?"MENU_BUYSET":"MENU_BUYRE", (GetTotalRebuyCost(id) > 0 && !g_iHero[id]) ? sCost : "");
 	menu_additem(iMenu, szText, "rs")
 	
 	set_pdata_int(id, 205, 0)
@@ -3742,14 +3805,16 @@ stock ResetBalance()
 }
 stock ShowVirusStatusMessage(mode=0)
 {
+	new szText[256]
 	for(new id = 0; id < get_maxplayers(); id ++ )
 	{
 		if(!is_user_connected(id) || is_user_bot(id))
 			continue;
 		
 		set_dhudmessage(200, 140, 0, -1.0, 0.2, 0, 0.0, 4.0, 0.5, 0.5);
-		if(mode) show_dhudmessage(id, "The virus has been detoxified. This zombie cannot revive when killed");
-		else show_dhudmessage(id, "Zombies will continue to revive until exposed to virus detoxification.");
+		if(mode)  format(szText, 255, "%L", LANG_PLAYER, "VIRUS_END")
+		else format(szText, 255, "%L", LANG_PLAYER, "VIRUS_START")
+		show_dhudmessage(id, "%s", szText);
 	}
 }
 stock ShowChoosedZbMessage()
@@ -3760,7 +3825,7 @@ stock ShowChoosedZbMessage()
 			continue;
 		
 		set_dhudmessage(200, 140, 0, -1.0, 0.2, 0, 0.0, 4.0, 0.5, 0.5);
-		show_dhudmessage(id, "Zombie transformation nearly complete! Go, infect the humans!");
+		show_dhudmessage(id, "%L", LANG_PLAYER, "ZOMBIE_READY");
 	}
 }
 
@@ -3893,6 +3958,7 @@ stock Check_Force_EndRound()
 {
 	if(g_EndRound || get_player_count() <= 1) return
 	
+	new szText[256]
 	if(g_NewRound && g_RoundStatus == ROUND_RUNNING)
 	{
 		if(g_RoundTime > 0)
@@ -3908,8 +3974,9 @@ stock Check_Force_EndRound()
 				SetScore(1, 3)
 				SetScore(2, 1)
 				
-				send_center_text(c_escape_mode ? "Escape Failed!" : "Zombie Taken out the World!", 5.0, {200, 90, 90}, 0)
-				rg_round_end(5.0, WINSTATUS_TERRORISTS, ROUND_TERRORISTS_WIN, c_escape_mode ? "Escape Failed!" : "Zombie Taken out the World!", "zombi/win_zombie.wav")
+				format(szText, 255, "%L", LANG_PLAYER, c_escape_mode ? "ZBWIN_ESCAPE" : "ZBWIN_NORM")
+				send_center_text(szText, 5.0, {200, 90, 90}, 0)
+				rg_round_end(5.0, WINSTATUS_TERRORISTS, ROUND_TERRORISTS_WIN, szText, "zombi/win_zombie.wav")
 				g_SupplySpawn = 0
 				g_Virus = 0
 				g_EndRound = 1
@@ -3926,8 +3993,9 @@ stock Check_Force_EndRound()
 				SetScore(1, 1)
 				
 				ResetVipStatus()
-				send_center_text("All zombie has been eliminated!", 5.0, {168,204,238}, 0)
-				rg_round_end(5.0, WINSTATUS_CTS, ROUND_CTS_WIN, "All zombie has been eliminated!", "zombi/win_human.wav")
+				format(szText, 255, "%L", LANG_PLAYER, "HMWIN_NORM")
+				send_center_text(szText, 5.0, {168,204,238}, 0)
+				rg_round_end(5.0, WINSTATUS_CTS, ROUND_CTS_WIN, szText, "zombi/win_human.wav")
 				g_SupplySpawn = 0
 				g_Virus = 0
 				g_EndRound = 1
@@ -3942,7 +4010,9 @@ stock Check_Force_EndRound()
 				EndRoundCharaNoise()
 				SetScore(2, 3)
 				SetScore(1, 1)
-				rg_round_end(5.0, WINSTATUS_CTS, ROUND_CTS_WIN, c_escape_mode ?  "Escape Success!" : "All Humans has been Survived!", "zombi/win_human.wav")
+				format(szText, 255, "%L", LANG_PLAYER, c_escape_mode ?  "HMWIN_ESCAPE" : "HMWIN_SURVIVED")
+				send_center_text(szText, 5.0, {168,204,238}, 0)
+				rg_round_end(5.0, WINSTATUS_CTS, ROUND_CTS_WIN, szText, "zombi/win_human.wav")
 				g_team_score[2] ++
 			}
 			else
@@ -3950,7 +4020,9 @@ stock Check_Force_EndRound()
 				if(c_escape_mode) KillAllHuman()
 				SetScore(1, 1)
 				SetScore(1, 3)
-				rg_round_end(5.0, WINSTATUS_TERRORISTS, ROUND_TERRORISTS_WIN, c_escape_mode ? "Escape Failed!" : "Zombie Taken out the World!", "zombi/win_zombie.wav")
+				format(szText, 255, "%L", LANG_PLAYER, c_escape_mode ? "ZBWIN_ESCAPE" : "ZBWIN_NORM")
+				send_center_text(szText, 5.0, {200, 90, 90}, 0)
+				rg_round_end(5.0, WINSTATUS_TERRORISTS, ROUND_TERRORISTS_WIN, szText, "zombi/win_zombie.wav")
 				g_team_score[1] ++
 			}
 			RemoveAllSupply()
@@ -4364,12 +4436,13 @@ stock HasLimitedWeapon(id, iWpn, slot=0, herocheck=1)
 }
 stock DecodingReward(id)
 {
-	new Float:flRandomChance, iSigned = 0;
+	new szText[256], Float:flRandomChance, iSigned = 0;
 	if(g_iDecodingCount[0][id] + 1 >= c_decoder_guarantee[0])
 	{
 		if(!GetRandomItems(id, 1))
 		{
-			colored_print(id, ">x01[>x04Decoder>x01] You Obtained >x04%i>x01 Guarantee Point", SPARK_UNI);
+			format(szText, 255, "%L", LANG_PLAYER, "DECO_SPARKPOINT", SPARK_UNI)
+			colored_print(id, ">x01[>x04Decoder>x01] %s", szText);
 			g_iSparkPoint[id] += SPARK_UNI;
 			play_sound(id, "gachapon/open_weapon_item_top.wav")
 		}
@@ -4380,7 +4453,8 @@ stock DecodingReward(id)
 	{
 		if(!GetRandomItems(id, 2))
 		{
-			colored_print(id, ">x01[>x04Decoder>x01] You Obtained >x04%i>x01 Guarantee Point", SPARK_PRE);
+			format(szText, 255, "%L", LANG_PLAYER, "DECO_SPARKPOINT", SPARK_PRE)
+			colored_print(id, ">x01[>x04Decoder>x01] %s", szText);
 			g_iSparkPoint[id] += SPARK_PRE;
 			play_sound(id, "gachapon/open_weapon_item_top_sss.wav")
 		}
@@ -4407,7 +4481,8 @@ stock DecodingReward(id)
 			{
 				if(!GetRandomItems(id, 2))
 				{
-					colored_print(id, ">x01[>x04Decoder>x01] You Obtained >x04%i>x01 Guarantee Point", SPARK_PRE);
+					format(szText, 255, "%L", LANG_PLAYER, "DECO_SPARKPOINT", SPARK_PRE)
+					colored_print(id, ">x01[>x04Decoder>x01] %s", szText);
 					g_iSparkPoint[id] += SPARK_PRE;
 					play_sound(id, "gachapon/open_weapon_item_top_sss.wav")
 				}
@@ -4418,7 +4493,8 @@ stock DecodingReward(id)
 			}
 			if(!GetRandomItems(id, 1))
 			{
-				colored_print(id, ">x01[>x04Decoder>x01] You Obtained >x04%i>x01 Guarantee Point", SPARK_UNI);
+				format(szText, 255, "%L", LANG_PLAYER, "DECO_SPARKPOINT", SPARK_UNI)
+				colored_print(id, ">x01[>x04Decoder>x01] %s", szText);
 				g_iSparkPoint[id] += SPARK_UNI;
 				play_sound(id, "gachapon/open_weapon_item_top.wav")
 			}
@@ -4438,13 +4514,13 @@ stock DecoderRandomItem(id)
 		{
 			iValue = random_num(1000, 2000)
 			rg_add_account(id, iValue)
-			format(szNotice, charsmax(szNotice), "You obtained Money $>x04%i>x01", iValue);
+			format(szNotice, charsmax(szNotice), "%L", LANG_PLAYER, "DECO_MONEY", iValue);
 		}
 		case 7:
 		{
 			iValue = random_num(1,3);
 			g_iDecoder[id] += iValue
-			format(szNotice, charsmax(szNotice), "You obtained extra >x04%ix Decoder>x01", iValue);
+			format(szNotice, charsmax(szNotice), "%L", LANG_PLAYER, "DECO_DECO", iValue);
 		}
 		case 9:
 		{
@@ -4452,13 +4528,13 @@ stock DecoderRandomItem(id)
 			{
 				iValue = random_num(20, 100)
 				g_exp[id] += iValue
-				format(szNotice, charsmax(szNotice), "You obtained extra >x04%ix Mutation Point>x01", iValue);
+				format(szNotice, charsmax(szNotice), "%L", LANG_PLAYER, "DECO_EXP", iValue);
 			} else goto DefaultItem	
 		}
 		case 10:
 		{
 			iValue = random_num(10, 30)
-			format(szNotice, charsmax(szNotice), "You Obtained >x04%i>x01 Guarantee Point", iValue);
+			format(szNotice, charsmax(szNotice), "%L", LANG_PLAYER, "DECO_SPARKPOINT", iValue);
 			g_iSparkPoint[id] += iValue;
 		}
 		case 13:
@@ -4473,7 +4549,7 @@ stock DecoderRandomItem(id)
 		case 15:
 		{
 			iValue = random_num(1, 10)
-			format(szNotice, charsmax(szNotice), "You Obtained >x04%i>x01 Guarantee Point", iValue);
+			format(szNotice, charsmax(szNotice), "%L", LANG_PLAYER, "DECO_SPARKPOINT", iValue);
 			g_iSparkPoint[id] += iValue;
 		}
 		case 17:
@@ -4482,7 +4558,7 @@ stock DecoderRandomItem(id)
 			{
 				iValue = g_zombie[id] ? random_num(300, 600) : random_num(50, 100)
 				set_pev(id, pev_health, pev(id, pev_health) + float(iValue))
-				format(szNotice, charsmax(szNotice), "You obtained extra >x04%i HP>x01", iValue);
+				format(szNotice, charsmax(szNotice), "%L", LANG_PLAYER, "DECO_HP", iValue);
 			} else goto DefaultItem
 		}
 
@@ -4491,7 +4567,7 @@ stock DecoderRandomItem(id)
 			DefaultItem:
 			iValue = random_num(100, 500)
 			rg_add_account(id, iValue)
-			format(szNotice, charsmax(szNotice), "You obtained Money $>x04%i>x01", iValue);
+			format(szNotice, charsmax(szNotice), "%L", LANG_PLAYER, "DECO_MONEY", iValue);
 		}
 	}
 	g_iSparkPoint[id] += SPARK_NOR
@@ -4649,7 +4725,7 @@ stock GetRandomItems(id, grade=0)
 				replace(sWpnName, 63, "weapon_", "")
 				strtoupper(sWpnName);
 				format(sWpnName, 63, "%L", LANG_SERVER, sWpnName);
-				format(szNotice, charsmax(szNotice), ">x03%s>x01 has obtained %s item >x04%s>x01", szName, szGrade, sWpnName);
+				format(szNotice, charsmax(szNotice), "%L", LANG_PLAYER, "ITEM_OBTAIN", szName, szGrade, sWpnName);
 				play_sound(id, grade == 2 ? "gachapon/open_weapon_item_top_sss.wav" : "gachapon/open_weapon_item_top.wav")
 				colored_print(0, ">x01[>x04Decoder>x01] %s", szNotice);
 				g_iHasWpn[x][id] |= (1<<y);
@@ -4696,7 +4772,7 @@ stock DecodingSkin(id)
 		ArrayGetArray(ZSkinAddons, Item, aSkinData)
 		g_iHasSkin[id] |= (1<<Item)
 		iSigned=1
-		format(szNotice, charsmax(szNotice), ">x03%s>x01 has obtained >x04%s Skin>x01", szName, aSkinData[SkinData_name]);
+		format(szNotice, charsmax(szNotice), "%L", LANG_PLAYER, "SKIN_OBTAIN", szName, aSkinData[SkinData_name]);
 		colored_print(0, ">x01[>x04Decoder>x01] %s", szNotice);
 	}
 }
@@ -4851,7 +4927,7 @@ stock SetMorale(id, Level, Effect)
 		new Float:vOrigin[3]; pev(id, pev_origin, vOrigin)
 		
 		set_dhudmessage(255, 255, 0, -1.0, 0.25, 0, 6.0, 1.0, 0.0, 0.5)
-		show_dhudmessage(id, "Morale Boost Stage %i", g_morale[id])
+		show_dhudmessage(id, "%L %i", LANG_PLAYER, "MORALEBOOST", g_morale[id])
 		
 		play_sound(id, "zombi/levelup.wav")
 	}

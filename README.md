@@ -18,6 +18,7 @@ Tested on Steam only (25th Anniversary Update supported)
 - Extract cstrike folder from rezombiez_addons to your Counter-Strike Directory
 - Extract resources file to cstrike_downloads folder
 - Play
+  
 <b>Note!</b> If You are upgrading your ReGameDll, make sure you upgrading your Re-Api and Re Compile All plugins with new ReApi Header.
 
 ## Credits

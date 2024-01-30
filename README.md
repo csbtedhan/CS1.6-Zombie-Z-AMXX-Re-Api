@@ -1,7 +1,7 @@
 # CS1.6-Zombie-Z-AMXX-Re-Api
 CSO implemented Limited Amx Mod X Zombie Z for CS1.6 Re-Api version 
 
-Tested on Steam only (25th Anniversary Update supported) 
+Tested on Windows and Steam only (25th Anniversary Update supported) 
 
 ## Requires
 - [ReGamedll](https://github.com/s1lentq/ReGameDLL_CS)
@@ -19,7 +19,7 @@ Tested on Steam only (25th Anniversary Update supported)
 - Extract resources file to cstrike_downloads folder
 - Play
   
-<b>Note!</b> If You are upgrading your ReGameDll, make sure you upgrading your Re-Api and Re Compile All plugins with new ReApi Header.
+<b>Note!</b> If You're upgrading your ReGameDll, make sure you upgrading your Re-Api and Re Compile All plugins with new ReApi Header.
 
 ## Credits
 - asdiandx (Mostly Weapon Plugins)

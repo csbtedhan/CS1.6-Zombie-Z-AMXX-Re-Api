@@ -1,0 +1,28 @@
+; Add Primary weapon below
+; Format <classname> <cost> <level> <grade>
+; Grade 0 = normal 1 = unique 2 = premium
+[primary_weapon]
+sgmissile 2
+m95tiger 2
+
+; Add Secondary weapon below
+; Format <classname> <cost> <level> <grade>
+; Grade 0 = normal 1 = unique 2 = premium
+[secondary_weapon]
+
+
+; Add Melee weapon below
+; Format <classname> <cost> <level> <grade>
+; Grade 0 = normal 1 = unique 2 = premium
+[melee]
+
+; Add Grenade weapon below
+; Format <classname> <cost> <level> <grade>
+; Grade 0 = normal 1 = unique 2 = premium
+[grenades]
+
+
+; Add additional Zombie skin here, it will randomly get from decoder
+; format <name> <zombie system name> <model> <clawmodel>
+[zombieskin]
+

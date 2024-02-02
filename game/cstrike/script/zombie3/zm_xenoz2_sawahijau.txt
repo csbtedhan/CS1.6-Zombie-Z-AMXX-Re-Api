@@ -1,0 +1,282 @@
+; Counter Strike Zombie The Hero Z Configuration Settings
+; Mod by csbtedhan
+; Do not edit the [section]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Core
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[configs]
+
+;Sets the spawn waiting time
+zombie_respawn_time = 3.0
+
+;Countdown until Zombie appears
+countdown = 20
+
+; Escape Mode
+escape_mode = 0
+
+; Instant Infection (if 0 human will protected with armor)
+instant_infection = 1
+
+; Start Money minimum on newround
+minimum_money = 1000
+
+; Time Zombie respawnable or cannot killed permanently (Normal)
+; Time for zombie release (Escape)
+virus_time = 20
+
+;Time per Round
+round_time = 3
+
+; Default Human HP
+human_health = 1000
+
+; Human Armor (Infection Protect)
+human_armor = 100
+
+; Human Gravity
+human_gravity = 0.8
+
+; First zombie ratio chance of Total player
+zombie_ratio = 0.17
+
+; Money receive rate while attacking a zombie
+money_damage_rate = 0.02
+
+; Additional multiple Human weapon damage
+human_damage_multi = 1.3
+
+; Silent Zombie footsteps
+silent_zombie_footstep = 0
+
+; Zombie Default Armor
+zombie_armor = 1000
+
+; Additional HP for Zombie every Evolution
+zombie_health_infected = 14000
+zombie_health_host = 20000
+zombie_health_evolution = 32000
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Equip Mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+[equip_mode]
+
+; Block buying weapon features, this will prevent client buying anything
+block_buy = 1
+
+; Strip all weapon (exclude: knife) while spawn
+strip_weapon = 1
+
+;Auto-refills ammo when it gets depleted
+refill_ammo = 0
+
+; Additional Item
+additional_equipment = weapon_hegrenade, weapon_hegrenade
+
+; Add Primary weapon below
+; Format <classname> <cost> <level> <grade>
+; Grade 0 = normal 1 = unique 2 = premium
+[primary_weapon]
+ethereal 0
+janusmk5 0
+plasmagun 1
+plasmaexd 1
+svdex 1
+wondercannon 2
+gungnir 2
+sgmissile 2
+m95tiger 2
+bouncer 1
+kronos12ex 1
+skull11 0
+balrog11 1
+gatlingex 2
+thanatos7 1
+starchaserar 1
+starchasersr 1
+magicmg 1
+buffaug 2
+buffak 2
+buffm4 2
+buffsg552 2
+ak47 0
+m4a1 0
+mp5navy 0
+p90 0
+m3 0
+xm1014 0
+m249 0
+sg550 0
+g3sg1 0
+
+; Add Secondary weapon below
+; Format <classname> <cost> <level> <grade>
+; Grade 0 = normal 1 = unique 2 = premium
+[secondary_weapon]
+voidpistol 2
+dartpistol 1
+sapientia 0
+desperado 2
+gunkatam 1
+gunkata 2
+usp 0
+glock18 0
+deagle 0
+
+; Add Melee weapon below
+; Format <classname> <cost> <level> <grade>
+; Grade 0 = normal 1 = unique 2 = premium
+[melee]
+magicknife 1
+runeblade 1
+dualsword 2
+holysword 2
+knife 0
+classic 1
+gut 0
+m9 1
+flip 0
+bayonet 0
+karambit 1
+widow 1
+butterfly 1
+huntsman 0
+
+; Add Grenade weapon below
+; Format <classname> <cost> <level> <grade>
+; Grade 0 = normal 1 = unique 2 = premium
+[grenades]
+hegrenade 0
+anyagren 2
+holybomb 1
+chaingren 1
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Hero and Heroine
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[hero]
+
+; Enable hero mode in game
+hero_enable = 1
+
+; Hero model (single)
+hero_model = zbz_hero
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Supply Boxes
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[supplybox]
+
+; Supply boxes maximum on single round
+supplybox_max = 6
+
+; Cooldown/Delay supply arive
+supplybox_time = 40.0
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Decoder 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[decoder]
+
+; Price for 1x Decoder
+decoder_cost = 1000
+
+; Reward decoder every new round
+decoder_reward_newround = 5
+
+; Reward for picking normal supplyboxes
+decoder_reward_supplynormal = 3
+
+; Reward for picking exclusive supplyboxes
+decoder_reward_supplyexclusive = 6
+
+; Maximum randomize chance (1:chance)
+decoder_rate_chance = 100.0
+
+; Guaranted or Pity
+decoder_unique_guaranted = 10
+decoder_premium_guaranted = 50
+
+; Gacha rate float (0.0 -> max rate chance)
+decoder_rate_unique = 5.75
+decoder_rate_premium = 1.0
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Zombie Skin
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[zombieskin]
+
+; Add additional Zombie skin here, it will randomly get from decoder
+; format <name> <zombie system name> <model> <clawmodel>
+
+"Student Light" speed zbz_studentlight studentlight
+"Fallen Angel Rusty" flying zbz_y19s4rustywing y19s4rustywing
+"Good Witch Glinda Resident" resident zbz_y20s2resiskin y20s2resiskin
+"Nurse Banshee" banshee zbz_y20s1witchskin y20s1witchskin
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Frog Bomb
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[zombibomb]
+
+; Frog Bomb radius
+zombie_bomb_radius = 300.0
+
+; Frog bomb Normal maximum damage
+zombie_bomb_damage = 100.0
+
+; Frog bomb Normal maximum knockback amount
+zombie_bomb_knockback = 450.0
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Music
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[music]
+
+; BGM after freeze time ended
+music_round_start = music/combat/xenozmusic_01.mp3
+
+; BGM after countdown ended
+music_round_appear = 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Weather and Custom Sky
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+[wheater]
+
+; Enable Rain wheater
+rain = 0
+
+; Enable Snow
+snow = 0
+
+; Draw ambient fog view
+; Desinty is amount of fog
+fog = 1
+fog_density = 0.00099
+fog_color = 0 0 0
+
+[skyname]
+
+; Enable custom map sky
+custom_sky = 0
+
+; Sky names (randomize if more than one)
+sky_names = night2
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Objective Remover
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[objective]
+
+; Remove unused entity and objective
+removed_entity = armoury_entity , func_bomb_target , info_bomb_target , info_vip_start , func_vip_safetyzone , func_escapezone , hostage_entity , monster_scientist , func_hostage_rescue , info_hostage_rescue, func_buyzone , info_map_parameters
+

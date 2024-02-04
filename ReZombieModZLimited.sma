@@ -9,7 +9,7 @@
 #include <fakemeta_util>
 #include <reapi>
 
-#define MOD_VERSION	"2.0.2R"
+#define MOD_VERSION	"2.0.3R"
 #define MAX_CSDM_SPAWNS 128
 
 #define SPAWN_DATA_ORIGIN_X 0
@@ -3177,7 +3177,7 @@ public GuaranteMenu(id)
 	for(new i = 0; i < ArraySize(PrimWPN); i++)
 	{
 		ArrayGetArray(PrimWPN, i, aWpnData)
-		if(aWpnData[WpnData_Grade] == WPNGRADE_NORMAL)
+		if(aWpnData[WpnData_Grade] == WPNGRADE_NORMAL || !ItemIsRegistered(aWpnData[WpnData_Class]))
 			continue;
 
 		copy(sWpnName, 63, aWpnData[WpnData_Class])
@@ -3194,7 +3194,7 @@ public GuaranteMenu(id)
 	for(new i = 0; i < ArraySize(SecWPN); i++)
 	{
 		ArrayGetArray(SecWPN, i, aWpnData)
-		if(aWpnData[WpnData_Grade] == WPNGRADE_NORMAL)
+		if(aWpnData[WpnData_Grade] == WPNGRADE_NORMAL || !ItemIsRegistered(aWpnData[WpnData_Class]))
 			continue;
 
 		copy(sWpnName, 63, aWpnData[WpnData_Class])
@@ -3211,7 +3211,7 @@ public GuaranteMenu(id)
 	for(new i = 0; i < ArraySize(MeleeWPN); i++)
 	{
 		ArrayGetArray(MeleeWPN, i, aWpnData)
-		if(aWpnData[WpnData_Grade] == WPNGRADE_NORMAL)
+		if(aWpnData[WpnData_Grade] == WPNGRADE_NORMAL || !ItemIsRegistered(aWpnData[WpnData_Class]))
 			continue;
 
 		copy(sWpnName, 63, aWpnData[WpnData_Class])
@@ -3228,7 +3228,7 @@ public GuaranteMenu(id)
 	for(new i = 0; i < ArraySize(NadeWPN); i++)
 	{
 		ArrayGetArray(NadeWPN, i, aWpnData)
-		if(aWpnData[WpnData_Grade] == WPNGRADE_NORMAL)
+		if(aWpnData[WpnData_Grade] == WPNGRADE_NORMAL || !ItemIsRegistered(aWpnData[WpnData_Class]))
 			continue;
 
 		copy(sWpnName, 63, aWpnData[WpnData_Class])
@@ -3529,6 +3529,8 @@ public SpawnWeaponMenu(id, slot, display)
 				case 3: ArrayGetArray(NadeWPN, i, aWpnData)
 				default: ArrayGetArray(PrimWPN, i, aWpnData)
 			}
+			
+			if(!ItemIsRegistered(aWpnData[WpnData_Class])) continue;
 			
 			copy(sWpnName, 127, aWpnData[WpnData_Class])
 			replace(sWpnName, 127, "weapon_", "")
@@ -4284,7 +4286,8 @@ stock GetRandomDefaultWeapon(id, slot=0)
 			itemid = random(ArraySize(PrimWPN))
 			ArrayGetArray(PrimWPN, itemid, aWpnData);
 		}
-		
+		if(!ItemIsRegistered(aWpnData[WpnData_Class]))
+			continue;
 		if(g_level[id] < aWpnData[WpnData_Level])
 			continue;
 		if(!HasLimitedWeapon(id, itemid, slot))
@@ -4321,6 +4324,8 @@ stock RandomizeWeapon(id, maxleveldist=3, slot=0, grade=0)
 		if(maxleveldist < aWpnData[WpnData_Level])
 			continue;
 		if(aWpnData[WpnData_Grade] > grade)
+			continue;
+		if(!ItemIsRegistered(aWpnData[WpnData_Class]))
 			continue;
 		
 		cs_give_item(id, aWpnData[WpnData_Class])
@@ -4419,6 +4424,8 @@ stock GetWeaponStatus(id, index, slot=0, grade=0)
 stock HasLimitedWeapon(id, iWpn, slot=0, herocheck=1)
 {
 	new aWpnData[WpnData]; ArrayGetArray(slot?(slot==1?SecWPN:(slot==3?NadeWPN:MeleeWPN)):PrimWPN, iWpn, aWpnData);
+	
+	if(!ItemIsRegistered(aWpnData[WpnData_Class])) return 0;
 	
 	if(aWpnData[WpnData_Grade] == 0) return 1;
 	
@@ -4581,36 +4588,36 @@ stock hasAllWeapons(id, grade=0)
 	{
 		for(new y=0;y<ArraySize(PrimWPN);y++)
 		{
-					ArrayGetArray(PrimWPN, y, aWpnData);
-					if(aWpnData[WpnData_Grade] == grade) ItemCount++
-					if(g_iHasWpn[0][id] & (1<<y)) InvenCount++
+			ArrayGetArray(PrimWPN, y, aWpnData);
+			if(aWpnData[WpnData_Grade] == grade && ItemIsRegistered(aWpnData[WpnData_Class])) ItemCount++
+			if(g_iHasWpn[0][id] & (1<<y)) InvenCount++
 		}
 	}
 	if(ArraySize(SecWPN))
 	{
 		for(new y=0;y<ArraySize(SecWPN);y++)
 		{
-					ArrayGetArray(SecWPN, y, aWpnData);
-					if(aWpnData[WpnData_Grade] == grade) ItemCount++
-					if(g_iHasWpn[1][id] & (1<<y)) InvenCount++
+			ArrayGetArray(SecWPN, y, aWpnData);
+			if(aWpnData[WpnData_Grade] == grade && ItemIsRegistered(aWpnData[WpnData_Class])) ItemCount++
+			if(g_iHasWpn[1][id] & (1<<y)) InvenCount++
 		}
 	}
 	if(ArraySize(MeleeWPN))
 	{
 		for(new y=0;y<ArraySize(MeleeWPN);y++)
 		{
-					ArrayGetArray(MeleeWPN, y, aWpnData);
-					if(aWpnData[WpnData_Grade] == grade) ItemCount++
-					if(g_iHasWpn[2][id] & (1<<y)) InvenCount++
+			ArrayGetArray(MeleeWPN, y, aWpnData);
+			if(aWpnData[WpnData_Grade] == grade && ItemIsRegistered(aWpnData[WpnData_Class])) ItemCount++
+			if(g_iHasWpn[2][id] & (1<<y)) InvenCount++
 		}
 	}
 	if(ArraySize(NadeWPN))
 	{
 		for(new y=0;y<ArraySize(NadeWPN);y++)
 		{
-					ArrayGetArray(SecWPN, y, aWpnData);
-					if(aWpnData[WpnData_Grade] == grade) ItemCount++
-					if(g_iHasWpn[3][id] & (1<<y)) InvenCount++
+			ArrayGetArray(SecWPN, y, aWpnData);
+			if(aWpnData[WpnData_Grade] == grade && ItemIsRegistered(aWpnData[WpnData_Class])) ItemCount++
+			if(g_iHasWpn[3][id] & (1<<y)) InvenCount++
 		}
 	}
 	
@@ -4628,7 +4635,7 @@ stock GetItemCount(iSlot=0, grade=0)
 				for(new y=0;y<ArraySize(SecWPN);y++)
 				{
 					ArrayGetArray(SecWPN, y, aWpnData);
-					if(aWpnData[WpnData_Grade] == grade) ItemCount++
+					if(aWpnData[WpnData_Grade] == grade && ItemIsRegistered(aWpnData[WpnData_Class])) ItemCount++
 				}
 			}
 		}
@@ -4639,7 +4646,7 @@ stock GetItemCount(iSlot=0, grade=0)
 				for(new y=0;y<ArraySize(MeleeWPN);y++)
 				{
 					ArrayGetArray(MeleeWPN, y, aWpnData);
-					if(aWpnData[WpnData_Grade] == grade) ItemCount++
+					if(aWpnData[WpnData_Grade] == grade && ItemIsRegistered(aWpnData[WpnData_Class])) ItemCount++
 				}
 			}
 		}
@@ -4650,7 +4657,7 @@ stock GetItemCount(iSlot=0, grade=0)
 				for(new y=0;y<ArraySize(NadeWPN);y++)
 				{
 					ArrayGetArray(NadeWPN, y, aWpnData);
-					if(aWpnData[WpnData_Grade] == grade) ItemCount++
+					if(aWpnData[WpnData_Grade] == grade && ItemIsRegistered(aWpnData[WpnData_Class])) ItemCount++
 				}
 			}
 		}
@@ -4661,13 +4668,34 @@ stock GetItemCount(iSlot=0, grade=0)
 				for(new y=0;y<ArraySize(PrimWPN);y++)
 				{
 					ArrayGetArray(PrimWPN, y, aWpnData);
-					if(aWpnData[WpnData_Grade] == grade) ItemCount++
+					if(aWpnData[WpnData_Grade] == grade && ItemIsRegistered(aWpnData[WpnData_Class])) ItemCount++
 				}
 			}
 		}
 	}
 
 	return ItemCount
+}
+stock ItemIsRegistered(const szItems[])
+{
+	new szItem[128]
+	copy(szItem, 127, szItems)
+	replace(szItem, 127, "weapon_", "")
+	
+	if( equal(szItem, "ak47")|| equal(szItem, "m4a1")|| equal(szItem, "sg552")|| 
+		equal(szItem, "aug")|| equal(szItem, "galil")|| equal(szItem, "famas")|| 
+		equal(szItem, "ump45")|| equal(szItem, "scout")|| equal(szItem, "awp")|| 
+		equal(szItem, "g3sg1")|| equal(szItem, "sg550")|| equal(szItem, "mp5navy")|| 
+		equal(szItem, "mac10")|| equal(szItem, "p90")|| equal(szItem, "tmp")|| 
+		equal(szItem, "m249")|| equal(szItem, "m3")|| equal(szItem, "xm1014")|| 
+		equal(szItem, "p228")|| equal(szItem, "usp")|| equal(szItem, "deagle")|| 
+		equal(szItem, "glock18")|| equal(szItem, "elites")|| equal(szItem, "fiveseven") || 
+		equal(szItem, "hegrenade")|| equal(szItem, "smokegrenade")|| equal(szItem, "flashbang") )
+		return 1;
+
+	if (cs_get_custom_itemid(szItem) != -1)
+		return 1
+	return 0;
 }
 stock GetRandomItems(id, grade=0)
 {
@@ -4717,6 +4745,9 @@ stock GetRandomItems(id, grade=0)
 				ArrayGetArray(PrimWPN, y, aWpnData);
 			}
 		}
+		if(!ItemIsRegistered(aWpnData[WpnData_Class])) 
+			continue;
+			
 		if(aWpnData[WpnData_Grade] == grade)
 		{
 			if(!HasLimitedWeapon(id, y, x, 0))
@@ -5712,6 +5743,3 @@ stock load_supply_spawn()
 	if (file) fclose(file)
 	return 1;
 }
-/* AMXX-Studio Notes - DO NOT MODIFY BELOW HERE
-*{\\ rtf1\\ ansi\\ deff0{\\ fonttbl{\\ f0\\ fnil Tahoma;}}\n\\ viewkind4\\ uc1\\ pard\\ lang1033\\ f0\\ fs16 \n\\ par }
-*/

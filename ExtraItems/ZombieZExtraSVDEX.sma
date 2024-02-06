@@ -32,6 +32,11 @@ new const WeaponSounds[][] =
 	"weapons/svdex-1.wav",
 	"weapons/svdex-2.wav"
 }
+
+// !! Sec Ammo
+#define AMMO2_ID 15
+#define AMMO2_AMOUNT 10
+
 public plugin_precache()
 {
 	precache_model(V_MODEL)
@@ -84,13 +89,15 @@ public GiveBuffM4(id)
 	
 	Set_BitVar(g_HadWpn,id)
 	UnSet_BitVar(g_Attack,id)
-	fm_give_item(id, "weapon_ak47")
+	fm_give_item(id, weapon_svdex)
 	
+	set_pdata_int(Attacker, 376 + AMMO2_ID, 1, 5)
+
 	static Ent; Ent = fm_get_user_weapon_entity(id, CSW_SVDEX)
 	if(pev_valid(Ent)) 
 	{
 		cs_set_weapon_ammo(Ent, 20)
-		set_pev(Ent, pev_iuser3, 10);
+		set_pev(Ent, pev_iuser3, AMMO2_AMOUNT);
 	}
 }
 public fw_Remove_Item(id, itemid, slot)
@@ -197,7 +204,9 @@ public fw_PrimaryAttack(Ent)
 			set_pdata_float(Ent, 46, 2.8, 4)
 			set_pdata_float(Ent, 47, 2.8, 4)
 			set_pdata_float(Ent, 48, 2.8+0.5, 4)
-			StockUpdateAmmo(Id, -1, pev(Ent, pev_iuser3))
+
+			//StockUpdateAmmo(Id, -1, pev(Ent, pev_iuser3))
+			StockUpdateAmmo2(Id, pev(Ent, pev_iuser3))
 		}
 		return HAM_SUPERCEDE
 	}
@@ -226,11 +235,13 @@ public fw_PrimaryAttack_Post(Ent)
 
 		Stock_DrawBeam(Origin, vecTarget);
 	}
+	#if 0
 	if(pev(Ent, pev_iuser4))
 	{
-		StockUpdateAmmo(Id, -1, pev(Ent, pev_iuser3))
+		//StockUpdateAmmo(Id, -1, pev(Ent, pev_iuser3))
+		StockUpdateAmmo2(Id, pev(Ent, pev_iuser3))
 	}
-		
+	#endif 
 	UnSet_BitVar(g_Attack,Id)
 }
 public fw_Weapon_WeaponIdle_Post( iEnt )
@@ -290,13 +301,14 @@ public fw_Item_PostFrame(ent)
 		return HAM_IGNORED
 	if(!Get_BitVar(g_HadWpn, id))
 		return HAM_IGNORED	
-	
+	#if 0
 	if(pev(ent, pev_iuser4) && cs_get_user_bpammo(id, CSW_SVDEX) != pev(ent, pev_iuser3))
 	{
-		set_pev(ent, pev_iuser2, cs_get_user_bpammo(id, CSW_SVDEX))
-		StockUpdateAmmo(id, -1, pev(ent, pev_iuser3))
+		//set_pev(ent, pev_iuser2, cs_get_user_bpammo(id, CSW_SVDEX))
+		//StockUpdateAmmo(id, -1, pev(ent, pev_iuser3))
 		set_pev(ent,pev_gamestate, 1)
 	}
+	#endif 
 	if(get_user_button(id) & IN_ATTACK2 && get_pdata_float(ent, 47, 4) <= 0.0)
 	{
 		set_pdata_float(ent, 46, 1.5, 4);
@@ -304,13 +316,16 @@ public fw_Item_PostFrame(ent)
 		set_pdata_float(ent, 48, 1.5+0.5, 4);
 		set_pev(ent, pev_iuser4, 1-(pev(ent, pev_iuser4)))
 		Set_WeaponAnim(id, pev(ent, pev_iuser4)?8:9)
+
+#if 0
 		if(pev(ent, pev_iuser4)) 
 		{
 			set_pev(ent, pev_iuser2, cs_get_user_bpammo(id, CSW_SVDEX))
-			StockUpdateAmmo(id, -1, pev(ent, pev_iuser3))
+			//StockUpdateAmmo(id, -1, pev(ent, pev_iuser3))
 		} else {
 			StockUpdateAmmo(id, get_pdata_int(ent, 51, 4), pev(ent, pev_iuser2));
 		}
+#endif 
 	}
 	static Float:flNextAttack; flNextAttack = get_pdata_float(id, 83, 5)
 	static bpammo; bpammo = cs_get_user_bpammo(id, CSW_SVDEX)
@@ -391,16 +406,17 @@ public fw_Item_Deploy_Post(Ent)
 		return
 	set_pev(Id, pev_viewmodel2, V_MODEL)
 	set_pev(Id, pev_weaponmodel2, P_MODEL)
-	
+#if 0
 	if(pev(Ent, pev_iuser4)) StockUpdateAmmo(Id, -1, pev(Ent, pev_iuser3))
 	else 
 	{
 		if(pev(Ent,pev_gamestate)!=0)
 			StockUpdateAmmo(Id, get_pdata_int(Ent, 51, 4), pev(Ent, pev_iuser2))
 	}
-
+#endif 
 	Set_WeaponAnim(Id, pev(Ent, pev_iuser4) ? 7:3)
 	set_pdata_string(Id, (492) * 4, "rifle", -1 , 20)
+	Set_WpnList(Id)
 }
 
 public fw_UpdateClientData_Post(id, sendweapons, cd_handle)
@@ -430,6 +446,7 @@ public fw_PlaybackEvent(flags, invoker, eventid, Float:delay, Float:origin[3], F
 
 	return FMRES_SUPERCEDE
 }
+
 public CreateNade(id)
 {
 	new iEnt = engfunc(EngFunc_CreateNamedEntity, engfunc(EngFunc_AllocString, "grenade"))
@@ -547,6 +564,7 @@ stock Stock_DrawBeam(Float:vStart[3], Float:vEnd[3])
 	set_pev(iBeamEntity, pev_nextthink, get_gametime() + 0.5);
 	set_pev(iBeamEntity, pev_dmgtime, get_gametime() + 1.5);
 }
+#if 0
 public StockUpdateAmmo(id, ammo, bpammo)
 {
 	engfunc(EngFunc_MessageBegin, MSG_ONE_UNRELIABLE, get_user_msgid("CurWeapon"), {0, 0, 0}, id)
@@ -562,6 +580,25 @@ public StockUpdateAmmo(id, ammo, bpammo)
 	
 	cs_set_user_bpammo(id, CSW_SVDEX, bpammo)
 }
+#endif 
+
+public StockUpdateAmmo2(id, ammo2) set_pdata_int(id, 376 + AMMO2_ID, ammo2, 5)
+
+public Set_WpnList(id)
+{
+	message_begin(MSG_ONE_UNRELIABLE, get_user_msgid("WeaponList"), _, id)
+	write_string(Get_BitVar(g_HadWpn, id) ? "weapon_svdex" : weapon_svdex)
+	write_byte(2)
+	write_byte(90)
+	write_byte(AMMO2_ID)
+	write_byte(AMMO2_AMOUNT)
+	write_byte(0)
+	write_byte(1)
+	write_byte(CSW_SVDEX)
+	write_byte(0)
+	message_end()
+}
+
 stock Make_BulletHole(Float:vecOrigin[3], iEnt)
 {
 	static szName[16]

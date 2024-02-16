@@ -56,6 +56,23 @@ public plugin_precache()
 }
 load_config()
 {
+	if(!file_exists("sprites/weapon_svdex.txt"))
+	{
+		new fFile = fopen("sprites/weapon_svdex.txt", "a")
+		fprintf(fFile, "11^n")
+		fprintf(fFile, "weapon			320 320hud1	160	80	80	20^n")
+		fprintf(fFile, "weapon_s		320 320hud1	160	100	80	20^n")
+		fprintf(fFile, "ammo			320 640hud7	72	72	24	24^n")
+		fprintf(fFile, "crosshair		320 crosshairs	24	0	24	24^n")
+		fprintf(fFile, "autoaim			320 crosshairs	0	72	24	24^n")
+		fprintf(fFile, "weapon			640 640hud10	0	0	170	45^n")
+		fprintf(fFile, "weapon_s		640 640hud11	0	0	170	45^n")
+		fprintf(fFile, "ammo			640 640hud7	72	72	24	24^n")
+		fprintf(fFile, "ammo2			640 640hud7	72	96	24	24^n")
+		fprintf(fFile, "crosshair		640 crosshairs	24	0	24	24^n")
+		fprintf(fFile, "autoaim			640 crosshairs	0	72	24	24^n")
+		fclose(fFile)
+	}
 	if(!file_exists("script/custom_item/weapon_svdex.txt"))
 	{
 		delete_file("script/custom_item/weapon_svdex.txt")

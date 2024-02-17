@@ -152,6 +152,7 @@ load_config()
 		
 		fprintf(File, "SKILL_RATEOFFIRE %f^n", SKILL_DMGROF)
 		fprintf(File, "SKILL_DAMAGE %i^n", floatround(SKILL_DAMAGE))
+		fprintf(File, "SKILL_RANGE %i^n", floatround(SKILL_RANGE))
 		fprintf(File, "SKILL_KNOCKBACK %i^n", floatround(SKILL_KNOCKBACK))
 		
 		fclose(File)
@@ -175,6 +176,7 @@ load_config()
 		else if(equal(key, "RELOAD_TIME")) c_wpn_reloadtime = str_to_float(value)
 		else if(equal(key, "SKILL_RATEOFFIRE")) c_sk_dmgrof = str_to_float(value)
 		else if(equal(key, "SKILL_DAMAGE")) c_sk_damage= str_to_num(value)
+		else if(equal(key, "SKILL_RANGE")) c_sk_range= str_to_num(value)
 		else if(equal(key, "SKILL_KNOCKBACK")) c_sk_kb = str_to_num(value)
 	}
 	fclose(file)

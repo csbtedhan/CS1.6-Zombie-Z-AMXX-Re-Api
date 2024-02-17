@@ -203,7 +203,7 @@ load_config()
 		else if(equal(key, "CHARGE_KNOCKBACK")) c_charge_kb = str_to_float(value)
 		
 		else if(equal(key, "BLAST_DAMAGE")) c_blast_damage = str_to_float(value)
-		else if(equal(key, "BLAST_ANGLE")) c_blast_radius = str_to_float(value)
+		else if(equal(key, "BLAST_RADIUS")) c_blast_radius = str_to_float(value)
 		else if(equal(key, "BLAST_RANGE")) c_blast_range = str_to_float(value)
 		else if(equal(key, "BLAST_KNOCKBACK")) c_blast_kb = str_to_float(value)
 		

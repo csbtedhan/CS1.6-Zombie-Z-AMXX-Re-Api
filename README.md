@@ -21,6 +21,9 @@ Tested on Windows and Steam only (25th Anniversary Update supported)
   
 <b>Note!</b> If You're upgrading your ReGameDll, make sure you upgrading your Re-Api and Re Compile All plugins with new ReApi Header.
 
+## Known Issues
+Not working with Linux, still configure how to fix, if you have any idea how to solve it, contact me on discord: csbtedhan. 
+
 ## Credits
 - asdiandx (Mostly Weapon Plugins)
 - csbtedhan (Mod)
